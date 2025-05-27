@@ -1,12 +1,6 @@
 {
   "version": 2,
   "name": "exam-app-online",
-  "builds": [
-    {
-      "src": "index.html",
-      "use": "@vercel/static"
-    }
-  ],
   "routes": [
     {
       "src": "/sw.js",
@@ -70,11 +64,6 @@
       ]
     }
   ],
-  "functions": {
-    "*.js": {
-      "maxDuration": 30
-    }
-  },
   "regions": ["sin1"],
   "cleanUrls": true,
   "trailingSlash": false,
