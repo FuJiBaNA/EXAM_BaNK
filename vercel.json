@@ -4,8 +4,7 @@
   "builds": [
     {
       "src": "index.html",
-      "use": "@vercel/static",
-      "outputDirectory": "."
+      "use": "@vercel/static"
     }
   ],
   "routes": [
@@ -37,10 +36,7 @@
     },
     {
       "src": "/(.*)",
-      "dest": "/index.html",
-      "headers": {
-        "Cache-Control": "public, max-age=0, must-revalidate"
-      }
+      "dest": "/index.html"
     }
   ],
   "headers": [
@@ -68,64 +64,25 @@
           "value": "camera=(), microphone=(), geolocation=(), interest-cohort=()"
         },
         {
-          "key": "Strict-Transport-Security",
-          "value": "max-age=31536000; includeSubDomains; preload"
-        },
-        {
           "key": "Content-Security-Policy",
           "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; manifest-src 'self'; worker-src 'self'"
-        }
-      ]
-    },
-    {
-      "source": "/api/(.*)",
-      "headers": [
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "*"
-        },
-        {
-          "key": "Access-Control-Allow-Methods",
-          "value": "GET, POST, PUT, DELETE, OPTIONS"
-        },
-        {
-          "key": "Access-Control-Allow-Headers",
-          "value": "Content-Type, Authorization"
         }
       ]
     }
   ],
   "functions": {
-    "app/api/*.js": {
+    "*.js": {
       "maxDuration": 30
     }
   },
   "regions": ["sin1"],
-  "github": {
-    "autoAlias": true,
-    "autoJobCancelation": true
-  },
   "cleanUrls": true,
   "trailingSlash": false,
-  "rewrites": [
-    {
-      "source": "/app/(.*)",
-      "destination": "/$1"
-    }
-  ],
   "redirects": [
     {
       "source": "/home",
       "destination": "/",
       "permanent": true
-    },
-    {
-      "source": "/exam/:id",
-      "destination": "/?exam=:id",
-      "permanent": false
     }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  }
+  ]
 }
