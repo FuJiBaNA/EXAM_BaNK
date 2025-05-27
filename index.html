@@ -31,6 +31,68 @@
     
     <title>คลังข้อสอบออนไลน์ - ระบบข้อสอบที่ทันสมัย</title>
     
+    <!-- Protection Script -->
+    <script>
+        (function() {
+            'use strict';
+            
+            // ป้องกัน Right Click
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                return false;
+            });
+            
+            // ป้องกัน Keyboard Shortcuts
+            document.addEventListener('keydown', function(e) {
+                // F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
+                if (e.keyCode === 123 || 
+                    (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74)) ||
+                    (e.ctrlKey && e.keyCode === 85) ||
+                    (e.ctrlKey && e.keyCode === 83)) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+            
+            // ตรวจจับ DevTools
+            let devtools = { open: false };
+            const threshold = 160;
+            
+            setInterval(function() {
+                if (window.outerHeight - window.innerHeight > threshold || 
+                    window.outerWidth - window.innerWidth > threshold) {
+                    if (!devtools.open) {
+                        devtools.open = true;
+                        document.body.innerHTML = `
+                            <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;display:flex;align-items:center;justify-content:center;flex-direction:column;font-family:Sarabun,sans-serif;z-index:99999;">
+                                <h1 style="font-size:3rem;margin-bottom:20px;">⚠️ หยุด!</h1>
+                                <p style="font-size:1.5rem;text-align:center;max-width:600px;">การเข้าถึงโค้ดนี้อาจเป็นอันตราย<br>หากคุณไม่ใช่นักพัฒนา โปรดปิดหน้าต่างนี้</p>
+                                <button onclick="location.reload()" style="margin-top:30px;padding:15px 30px;background:#fff;color:#667eea;border:none;border-radius:10px;font-size:1.2rem;cursor:pointer;">กลับไปหน้าหลัก</button>
+                            </div>
+                        `;
+                    }
+                } else {
+                    if (devtools.open) {
+                        location.reload();
+                    }
+                }
+            }, 500);
+            
+            // ป้องกัน Text Selection
+            document.addEventListener('selectstart', function(e) {
+                e.preventDefault();
+                return false;
+            });
+            
+            // Console Warning
+            setTimeout(() => {
+                console.log('%cหยุด!', 'color: red; font-size: 50px; font-weight: bold;');
+                console.log('%cนี่คือคุณสมบัติของเบราว์เซอร์สำหรับนักพัฒนา หากมีคนบอกให้คุณคัดลอกและวางสิ่งใดลงที่นี่ เพื่อเปิดใช้งานคุณสมบัติหรือ "แฮ็ก" บัญชีของใครบางคน นั่นคือการหลอกลวง และจะทำให้พวกเขาเข้าถึงบัญชีของคุณได้', 'color: red; font-size: 16px;');
+            }, 1000);
+            
+        })();
+    </script>
+    
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
     
@@ -55,6 +117,37 @@
             --border-radius: 10px;
             --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             --font-family: 'Sarabun', 'Tahoma', sans-serif;
+        }
+
+        /* Anti-inspect protection */
+        * {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        input, textarea {
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+        }
+
+        /* Hide scrollbars to prevent code inspection */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0,0,0,0.2);
+            border-radius: 4px;
         }
 
         /* Reset and Base Styles */
@@ -1200,23 +1293,17 @@
         // ===============================
         
         // Supabase Configuration - แก้ไข URL และ KEY ตามของจริง
-        const SUPABASE_URL = 'https://mbeifgxprqywtzqedjww.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1iZWlmZ3hwcnF5d3R6cWVkand3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgzMTI0MzQsImV4cCI6MjA2Mzg4ODQzNH0.Ti2iDDWMp6-BkNDpdD7HmtfnbJiUr-N6vNZk-FurSTA';
+        const _sb_url = 'https://mbeifgxprqywtzqedjww.supabase.co';
+        const _sb_key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1iZWlmZ3hwcnF5d3R6cWVkand3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgzMTI0MzQsImV4cCI6MjA2Mzg4ODQzNH0.Ti2iDDWMp6-BkNDpdD7HmtfnbJiUr-N6vNZk-FurSTA';
         
-        let supabase;
-        let currentUser = null;
-        let currentExam = null;
-        let examTimer = null;
-        let examTimeLeft = 0;
-        let userAnswers = {};
-        let authStateListener = null;
+        let _sb, _u = null, _ce = null, _et = null, _etl = 0, _ua = {}, _asl = null;
 
         // Initialize Supabase
         try {
-            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            _sb = window.supabase.createClient(_sb_url, _sb_key);
         } catch (error) {
             console.error('Supabase initialization error:', error);
-            showAlert('เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง', 'error');
+            _sa('เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง', 'error');
         }
 
         // ===============================
@@ -1226,54 +1313,54 @@
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('🚀 App initializing...');
             try {
-                await initializeApp();
+                await _ia();
             } catch (error) {
                 console.error('❌ App initialization error:', error);
-                showAlert('เกิดข้อผิดพลาดในการเริ่มต้นแอป', 'error');
+                _sa('เกิดข้อผิดพลาดในการเริ่มต้นแอป', 'error');
             }
         });
 
-        async function initializeApp() {
+        async function _ia() {
             // Show loading screen
-            showLoadingScreen();
+            _sls();
             
             // Setup event listeners
-            setupEventListeners();
+            _sel();
             
             // Check authentication
-            await checkAuthStatus();
+            await _cas();
             
             // Setup scroll listener for FAB
-            setupScrollListener();
+            _ssl();
             
             // Hide loading screen
-            hideLoadingScreen();
+            _hls();
             
             // Show appropriate page based on auth state
-            showInitialPage();
+            _sip();
         }
 
-        function showLoadingScreen() {
+        function _sls() {
             document.getElementById('loadingScreen').classList.remove('hidden');
             document.getElementById('app').classList.add('hidden');
         }
 
-        function hideLoadingScreen() {
+        function _hls() {
             setTimeout(() => {
                 document.getElementById('loadingScreen').classList.add('hidden');
                 document.getElementById('app').classList.remove('hidden');
             }, 500);
         }
 
-        function showInitialPage() {
-            if (currentUser) {
+        function _sip() {
+            if (_u) {
                 console.log('👤 User authenticated, showing home');
-                showPage('home');
-                updateUIForAuthState(true);
+                _sp('home');
+                _uua(true);
             } else {
                 console.log('🔓 No user, showing login');
-                showLogin();
-                updateUIForAuthState(false);
+                _sl();
+                _uua(false);
             }
         }
 
@@ -2257,7 +2344,7 @@
             alertDiv.className = `alert alert-${type}`;
             alertDiv.style.cssText = `
                 position: fixed;
-                top: 90px;
+                top: 20px;
                 left: 50%;
                 transform: translateX(-50%);
                 z-index: 10000;
@@ -2268,6 +2355,7 @@
             alertDiv.innerHTML = `
                 <div style="display: flex; align-items: center; justify-content: space-between;">
                     <span>${message}</span>
+                    <button onclick="this.parentElement.parentElement.remove()" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; margin-left: 10px; opacity: 0.7;">&times;</button>
                 </div>
             `;
             
@@ -2292,7 +2380,7 @@
                     alertDiv.style.animation = 'slideDown 0.3s ease reverse';
                     setTimeout(() => alertDiv.remove(), 300);
                 }
-            }, 2000);
+            }, 5000);
         }
 
         function showLoadingInContainer(container) {
@@ -2779,6 +2867,6 @@
                 addDemoDataButton();
             }
         }, 5000);
-    </script> 
+    </script>
 </body>
 </html>

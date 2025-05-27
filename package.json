@@ -5,9 +5,12 @@
   "main": "index.html",
   "scripts": {
     "dev": "npx serve . -p 3000",
-    "build": "echo 'Static site - no build needed'",
-    "start": "npx serve . -p 3000",
-    "preview": "npx serve . -p 4173"
+    "build": "node build.js",
+    "build:prod": "npm run build && npm run deploy",
+    "deploy": "npx vercel --prod",
+    "start": "npx serve dist -p 3000",
+    "preview": "npx serve dist -p 4173",
+    "clean": "rimraf dist"
   },
   "keywords": [
     "exam",
@@ -22,6 +25,12 @@
   "dependencies": {
     "serve": "^14.2.1"
   },
+  "devDependencies": {
+    "clean-css": "^5.3.0",
+    "html-minifier": "^4.0.0",
+    "terser": "^5.19.0",
+    "rimraf": "^5.0.0"
+  },
   "engines": {
     "node": ">=16.0.0"
   },
@@ -30,12 +39,10 @@
     "url": "https://github.com/FuJiBaNA/EXAM_BaNK.git"
   },
   "homepage": "https://exam-bank-70wejrc0g-fujibanas-projects.vercel.app",
-  "devDependencies": {},
   "browserslist": [
     "> 1%",
     "last 2 versions",
     "not dead",
     "not ie 11"
   ]
-  
 }
