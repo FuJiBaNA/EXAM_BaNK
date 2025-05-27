@@ -2257,7 +2257,7 @@
             alertDiv.className = `alert alert-${type}`;
             alertDiv.style.cssText = `
                 position: fixed;
-                top: 50px;
+                top: 90px;
                 left: 50%;
                 transform: translateX(-50%);
                 z-index: 10000;
@@ -2268,7 +2268,6 @@
             alertDiv.innerHTML = `
                 <div style="display: flex; align-items: center; justify-content: space-between;">
                     <span>${message}</span>
-                    <button onclick="this.parentElement.parentElement.remove()" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; margin-left: 10px; opacity: 0.7;">&times;</button>
                 </div>
             `;
             
