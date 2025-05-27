@@ -1199,8 +1199,8 @@
         // ===============================
         
         // Supabase Configuration
-        const SUPABASE_URL = 'https://mbeifgxprqywtzqedjww.supabase.co'; // ใส่ URL ของ Supabase project
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1iZWlmZ3hwcnF5d3R6cWVkand3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgzMTI0MzQsImV4cCI6MjA2Mzg4ODQzNH0.Ti2iDDWMp6-BkNDpdD7HmtfnbJiUr-N6vNZk-FurSTA'; // ใส่ public key
+        const SUPABASE_URL = 'YOUR_SUPABASE_URL'; // ใส่ URL ของ Supabase project
+        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY'; // ใส่ public key
         
         let supabase;
         let currentUser = null;
@@ -1222,10 +1222,11 @@
         // ===============================
         
         document.addEventListener('DOMContentLoaded', async function() {
+            console.log('🚀 App initializing...');
             try {
                 await initializeApp();
             } catch (error) {
-                console.error('App initialization error:', error);
+                console.error('❌ App initialization error:', error);
                 showAlert('เกิดข้อผิดพลาดในการเริ่มต้นแอป', 'error');
             }
         });
@@ -1234,7 +1235,7 @@
             // Show loading screen
             showLoadingScreen();
             
-            // Setup event listeners
+            // Setup event listeners (ย้ายมาก่อน checkAuth)
             setupEventListeners();
             
             // Check authentication
@@ -1248,8 +1249,10 @@
             
             // Show appropriate page
             if (currentUser) {
+                console.log('👤 User authenticated, showing home');
                 showPage('home');
             } else {
+                console.log('🔓 No user, showing login');
                 showLogin();
             }
         }
@@ -1271,18 +1274,41 @@
         // ===============================
         
         function setupEventListeners() {
+            console.log('🎛️ Setting up event listeners...');
+            
             // Forms
-            document.getElementById('loginForm').addEventListener('submit', handleLogin);
-            document.getElementById('registerForm').addEventListener('submit', handleRegister);
-            document.getElementById('addCategoryForm').addEventListener('submit', handleAddCategory);
-            document.getElementById('addExamForm').addEventListener('submit', handleAddExam);
-            document.getElementById('profileForm').addEventListener('submit', handleUpdateProfile);
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+            
+            if (loginForm) {
+                loginForm.removeEventListener('submit', handleLogin); // Remove existing
+                loginForm.addEventListener('submit', handleLogin);
+            }
+            
+            if (registerForm) {
+                registerForm.removeEventListener('submit', handleRegister); // Remove existing
+                registerForm.addEventListener('submit', handleRegister);
+            }
+            
+            // Other forms
+            const addCategoryForm = document.getElementById('addCategoryForm');
+            const addExamForm = document.getElementById('addExamForm');
+            
+            if (addCategoryForm) {
+                addCategoryForm.addEventListener('submit', handleAddCategory);
+            }
+            
+            if (addExamForm) {
+                addExamForm.addEventListener('submit', handleAddExam);
+            }
             
             // Modal close on click outside
             window.addEventListener('click', handleModalClick);
             
             // Keyboard navigation
             document.addEventListener('keydown', handleKeyboardNavigation);
+            
+            console.log('✅ Event listeners setup complete');
         }
 
         function handleModalClick(event) {
@@ -1322,34 +1348,78 @@
         // ===============================
         
         async function checkAuthStatus() {
+            console.log('🔍 Checking auth status...');
             try {
-                const { data: { session } } = await supabase.auth.getSession();
+                const { data: { session }, error } = await supabase.auth.getSession();
+                
+                if (error) {
+                    console.error('❌ Session check error:', error);
+                    throw error;
+                }
                 
                 if (session?.user) {
+                    console.log('✅ Session found, user:', session.user.email);
                     currentUser = session.user;
                     await loadUserProfile();
                     updateUserInfo();
+                    updateUIForAuthState(true);
+                } else {
+                    console.log('ℹ️ No active session');
+                    currentUser = null;
+                    updateUIForAuthState(false);
                 }
                 
                 // Listen for auth changes
                 supabase.auth.onAuthStateChange(async (event, session) => {
+                    console.log('🔄 Auth state changed:', event, session?.user?.email);
+                    
                     if (event === 'SIGNED_IN' && session?.user) {
                         currentUser = session.user;
                         await loadUserProfile();
                         updateUserInfo();
+                        updateUIForAuthState(true);
+                        showAlert('เข้าสู่ระบบสำเร็จ', 'success');
                         showPage('home');
                     } else if (event === 'SIGNED_OUT') {
                         currentUser = null;
+                        updateUIForAuthState(false);
+                        showAlert('ออกจากระบบสำเร็จ', 'success');
                         showLogin();
                     }
                 });
             } catch (error) {
-                console.error('Auth check error:', error);
+                console.error('❌ Auth check error:', error);
+                currentUser = null;
+                updateUIForAuthState(false);
+            }
+        }
+
+        // ฟังก์ชันใหม่สำหรับ update UI state
+        function updateUIForAuthState(isAuthenticated) {
+            const userInfo = document.getElementById('userInfo');
+            const navLinks = document.getElementById('navLinks');
+            
+            if (isAuthenticated) {
+                // แสดง nav links และ user info
+                navLinks.style.display = 'flex';
+                userInfo.style.display = 'flex';
+                
+                // ซ่อน login/register pages
+                document.getElementById('loginPage').classList.add('hidden');
+                document.getElementById('registerPage').classList.add('hidden');
+            } else {
+                // ซ่อน nav links และ user info เมื่อไม่ได้ login
+                navLinks.style.display = 'none';
+                userInfo.style.display = 'none';
+                
+                // แสดง login page
+                showLogin();
             }
         }
 
         async function handleLogin(e) {
             e.preventDefault();
+            console.log('🔐 Attempting login...');
             
             const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value;
@@ -1361,30 +1431,32 @@
             }
             
             try {
-                setButtonLoading(submitBtn, true);
+                setButtonLoading(submitBtn, true, 'กำลังเข้าสู่ระบบ...');
                 
                 const { data, error } = await supabase.auth.signInWithPassword({
-                    email,
-                    password
+                    email: email,
+                    password: password
                 });
                 
                 if (error) {
+                    console.error('❌ Login error:', error);
                     throw error;
                 }
                 
-                showAlert('เข้าสู่ระบบสำเร็จ', 'success');
+                console.log('✅ Login successful:', data.user.email);
                 document.getElementById('loginForm').reset();
                 
             } catch (error) {
-                console.error('Login error:', error);
+                console.error('❌ Login failed:', error);
                 showAlert(getErrorMessage(error), 'error');
             } finally {
-                setButtonLoading(submitBtn, false);
+                setButtonLoading(submitBtn, false, 'เข้าสู่ระบบ');
             }
         }
 
         async function handleRegister(e) {
             e.preventDefault();
+            console.log('📝 Attempting registration...');
             
             const email = document.getElementById('regEmail').value.trim();
             const password = document.getElementById('regPassword').value;
@@ -1393,6 +1465,7 @@
             const role = document.getElementById('regRole').value;
             const submitBtn = document.getElementById('registerSubmitBtn');
             
+            // Validation
             if (!email || !password || !username) {
                 showAlert('กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน', 'error');
                 return;
@@ -1403,53 +1476,105 @@
                 return;
             }
             
+            // Check email format
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showAlert('รูปแบบอีเมลไม่ถูกต้อง', 'error');
+                return;
+            }
+            
             try {
-                setButtonLoading(submitBtn, true);
+                setButtonLoading(submitBtn, true, 'กำลังสมัครสมาชิก...');
                 
+                // สมัครผ่าน Supabase Auth
                 const { data, error } = await supabase.auth.signUp({
-                    email,
-                    password,
+                    email: email,
+                    password: password,
                     options: {
                         data: {
-                            username,
+                            username: username,
                             full_name: fullName,
-                            role
+                            role: role
                         }
                     }
                 });
                 
                 if (error) {
+                    console.error('❌ Registration error:', error);
                     throw error;
                 }
                 
-                showAlert('สมัครสมาชิกสำเร็จ กรุณาตรวจสอบอีเมลเพื่อยืนยันบัญชี', 'success');
+                console.log('✅ Registration successful:', data);
+                
+                if (data.user && !data.session) {
+                    // Email confirmation required
+                    showAlert('สมัครสมาชิกสำเร็จ! กรุณาตรวจสอบอีเมลเพื่อยืนยันบัญชี', 'success');
+                } else if (data.session) {
+                    // Auto signed in
+                    showAlert('สมัครสมาชิกสำเร็จ!', 'success');
+                }
+                
                 document.getElementById('registerForm').reset();
-                showLogin();
+                
+                // ไปหน้า login หรือ home
+                if (data.session) {
+                    showPage('home');
+                } else {
+                    showLogin();
+                }
                 
             } catch (error) {
-                console.error('Register error:', error);
+                console.error('❌ Registration failed:', error);
                 showAlert(getErrorMessage(error), 'error');
             } finally {
-                setButtonLoading(submitBtn, false);
+                setButtonLoading(submitBtn, false, 'สมัครสมาชิก');
             }
         }
 
+        // แก้ไข logout function
         async function logout() {
+            console.log('🚪 Attempting logout...');
+            
             try {
-                const { error } = await supabase.auth.signOut();
-                if (error) throw error;
-                
+                // Clear local state first
                 currentUser = null;
-                showAlert('ออกจากระบบสำเร็จ', 'success');
+                currentExam = null;
+                userAnswers = {};
+                
+                if (examTimer) {
+                    clearInterval(examTimer);
+                    examTimer = null;
+                }
+                
+                // Sign out from Supabase
+                const { error } = await supabase.auth.signOut();
+                if (error) {
+                    console.error('❌ Logout error:', error);
+                    throw error;
+                }
+                
+                console.log('✅ Logout successful');
+                
+                // Force UI update
+                updateUIForAuthState(false);
                 
             } catch (error) {
-                console.error('Logout error:', error);
+                console.error('❌ Logout failed:', error);
                 showAlert('เกิดข้อผิดพลาดในการออกจากระบบ', 'error');
+                
+                // Force logout anyway
+                currentUser = null;
+                updateUIForAuthState(false);
             }
         }
 
         async function loadUserProfile() {
-            if (!currentUser) return;
+            if (!currentUser) {
+                console.log('⚠️ No current user to load profile');
+                return;
+            }
+            
+            console.log('👤 Loading user profile...');
             
             try {
                 const { data, error } = await supabase
@@ -1459,42 +1584,98 @@
                     .single();
                 
                 if (error && error.code !== 'PGRST116') {
+                    console.error('❌ Profile load error:', error);
                     throw error;
                 }
                 
                 if (data) {
+                    console.log('✅ Profile loaded:', data);
                     currentUser.profile = data;
+                } else {
+                    console.log('ℹ️ No profile found, creating...');
+                    // สร้าง profile ใหม่ถ้าไม่มี
+                    await createUserProfile();
                 }
                 
             } catch (error) {
-                console.error('Load profile error:', error);
+                console.error('❌ Load profile error:', error);
+                // ไม่ throw error เพื่อไม่ให้ app crash
+            }
+        }
+
+        // สร้างฟังก์ชันใหม่สำหรับสร้าง profile
+        async function createUserProfile() {
+            if (!currentUser) return;
+            
+            try {
+                const userData = currentUser.user_metadata || {};
+                
+                const { data, error } = await supabase
+                    .from('profiles')
+                    .insert([{
+                        id: currentUser.id,
+                        username: userData.username || currentUser.email.split('@')[0],
+                        full_name: userData.full_name || '',
+                        role: userData.role || 'student',
+                        membership_type: 'free'
+                    }])
+                    .select()
+                    .single();
+                
+                if (error) {
+                    console.error('❌ Create profile error:', error);
+                    throw error;
+                }
+                
+                console.log('✅ Profile created:', data);
+                currentUser.profile = data;
+                
+            } catch (error) {
+                console.error('❌ Failed to create profile:', error);
             }
         }
 
         function updateUserInfo() {
-            if (!currentUser) return;
+            if (!currentUser) {
+                console.log('⚠️ No current user to update info');
+                return;
+            }
+            
+            console.log('🔄 Updating user info...');
             
             const profile = currentUser.profile || {};
             const userName = document.getElementById('userName');
             const userAvatar = document.getElementById('userAvatar');
             const membershipBadge = document.getElementById('membershipBadge');
             
-            // Update user name
-            userName.textContent = profile.username || currentUser.email;
-            
-            // Update avatar
-            const initial = (profile.username || currentUser.email).charAt(0).toUpperCase();
-            userAvatar.textContent = initial;
-            
-            // Update membership badge
-            const membership = profile.membership_type || 'free';
-            membershipBadge.textContent = membership.toUpperCase();
-            membershipBadge.className = `membership-badge ${membership}`;
-            
-            // Show/hide teacher controls
-            const isTeacher = profile.role === 'teacher' || profile.role === 'admin';
-            document.getElementById('teacherControls').classList.toggle('hidden', !isTeacher);
-            document.getElementById('teacherExamControls').classList.toggle('hidden', !isTeacher);
+            if (userName && userAvatar && membershipBadge) {
+                // Update user name
+                const displayName = profile.username || currentUser.email;
+                userName.textContent = displayName;
+                
+                // Update avatar
+                const initial = displayName.charAt(0).toUpperCase();
+                userAvatar.textContent = initial;
+                
+                // Update membership badge
+                const membership = profile.membership_type || 'free';
+                membershipBadge.textContent = membership.toUpperCase();
+                membershipBadge.className = `membership-badge ${membership}`;
+                
+                // Show/hide teacher controls
+                const isTeacher = profile.role === 'teacher' || profile.role === 'admin';
+                const teacherControls = document.getElementById('teacherControls');
+                const teacherExamControls = document.getElementById('teacherExamControls');
+                
+                if (teacherControls) {
+                    teacherControls.classList.toggle('hidden', !isTeacher);
+                }
+                if (teacherExamControls) {
+                    teacherExamControls.classList.toggle('hidden', !isTeacher);
+                }
+                
+                console.log('✅ User info updated');
+            }
         }
 
         // ===============================
@@ -1502,6 +1683,15 @@
         // ===============================
         
         function showPage(pageId) {
+            console.log('📄 Showing page:', pageId);
+            
+            // Check auth for protected pages
+            if (!currentUser && pageId !== 'home') {
+                console.log('🔒 Protected page, redirecting to login');
+                showLogin();
+                return;
+            }
+            
             // Hide all pages
             const pages = document.querySelectorAll('.page');
             pages.forEach(page => page.classList.add('hidden'));
@@ -1527,16 +1717,20 @@
                         loadProfile();
                         break;
                 }
+            } else {
+                console.error('❌ Page not found:', pageId);
             }
         }
 
         function showLogin() {
+            console.log('🔓 Showing login page');
             const pages = document.querySelectorAll('.page');
             pages.forEach(page => page.classList.add('hidden'));
             document.getElementById('loginPage').classList.remove('hidden');
         }
 
         function showRegister() {
+            console.log('📝 Showing register page');
             const pages = document.querySelectorAll('.page');
             pages.forEach(page => page.classList.add('hidden'));
             document.getElementById('registerPage').classList.remove('hidden');
@@ -2220,26 +2414,51 @@
         // ===============================
         
         function showAlert(message, type = 'info') {
+            console.log(`📢 Alert [${type}]:`, message);
+            
             // Remove existing alerts
             const existingAlerts = document.querySelectorAll('.alert');
             existingAlerts.forEach(alert => alert.remove());
             
             const alertDiv = document.createElement('div');
             alertDiv.className = `alert alert-${type}`;
-            alertDiv.textContent = message;
+            alertDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                z-index: 10000;
+                max-width: 90%;
+                animation: slideDown 0.3s ease;
+            `;
             
-            // Add close button
-            const closeBtn = document.createElement('button');
-            closeBtn.innerHTML = '&times;';
-            closeBtn.style.cssText = 'float: right; background: none; border: none; font-size: 1.2rem; cursor: pointer; margin-left: 10px;';
-            closeBtn.onclick = () => alertDiv.remove();
-            alertDiv.appendChild(closeBtn);
+            alertDiv.innerHTML = `
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <span>${message}</span>
+                    <button onclick="this.parentElement.parentElement.remove()" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; margin-left: 10px; opacity: 0.7;">&times;</button>
+                </div>
+            `;
             
-            document.body.insertBefore(alertDiv, document.body.firstChild);
+            // Add CSS animation
+            if (!document.querySelector('#alert-styles')) {
+                const style = document.createElement('style');
+                style.id = 'alert-styles';
+                style.textContent = `
+                    @keyframes slideDown {
+                        from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+                        to { opacity: 1; transform: translateX(-50%) translateY(0); }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
             
+            document.body.appendChild(alertDiv);
+            
+            // Auto remove after 5 seconds
             setTimeout(() => {
                 if (alertDiv.parentNode) {
-                    alertDiv.remove();
+                    alertDiv.style.animation = 'slideDown 0.3s ease reverse';
+                    setTimeout(() => alertDiv.remove(), 300);
                 }
             }, 5000);
         }
