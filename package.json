@@ -27,9 +27,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-username/exam-app-online.git"
+    "url": "https://github.com/FuJiBaNA/EXAM_BaNK.git"
   },
-  "homepage": "https://your-app.vercel.app",
+  "homepage": "https://exam-ba-mnvqo5gs3-fujibanas-projects.vercel.app",
   "devDependencies": {},
   "browserslist": [
     "> 1%",
