@@ -1,5 +1,8 @@
 {
   "version": 2,
+  "buildCommand": "",
+  "outputDirectory": ".",
+  "installCommand": "",
   "rewrites": [
     {
       "source": "/(.*)",
