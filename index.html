@@ -17,17 +17,6 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <link rel="manifest" href="/manifest.json">
-    
-    <!-- Preconnect for performance -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    
-    <!-- Security Headers -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://*.supabase.co wss://*.supabase.co;">
-    <meta http-equiv="X-Content-Type-Options" content="nosniff">
-    <meta http-equiv="X-Frame-Options" content="DENY">
-    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
     
     <title>คลังข้อสอบออนไลน์ - ระบบข้อสอบที่ทันสมัย</title>
     
@@ -94,13 +83,15 @@
     </script>
     
     <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
     
     <!-- Supabase -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     
     <style>
-        /* CSS Variables for easy theming */
+        /* CSS Variables */
         :root {
             --primary-color: #667eea;
             --primary-dark: #5a6fd8;
@@ -136,21 +127,7 @@
             user-select: text;
         }
 
-        /* Hide scrollbars to prevent code inspection */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: rgba(0,0,0,0.2);
-            border-radius: 4px;
-        }
-
-        /* Reset and Base Styles */
+        /* Reset and Base */
         * {
             margin: 0;
             padding: 0;
@@ -220,7 +197,6 @@
             position: sticky;
             top: 0;
             z-index: 1000;
-            backdrop-filter: blur(10px);
         }
 
         .navbar {
@@ -257,29 +233,12 @@
             border-radius: 25px;
             transition: var(--transition);
             font-weight: 500;
-            position: relative;
-            overflow: hidden;
             cursor: pointer;
         }
 
-        .nav-links a::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: rgba(255,255,255,0.2);
-            transition: var(--transition);
-        }
-
-        .nav-links a:hover::before {
-            left: 0;
-        }
-
         .nav-links a:hover {
+            background: rgba(255,255,255,0.2);
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(255,255,255,0.2);
         }
 
         .user-info {
@@ -305,13 +264,11 @@
             font-size: 0.8rem;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
         .membership-badge.vip {
             background: linear-gradient(45deg, #ffd700, #ffed4e);
             color: #333;
-            box-shadow: 0 2px 10px rgba(255, 215, 0, 0.3);
         }
 
         .membership-badge.free {
@@ -373,7 +330,7 @@
             box-shadow: var(--card-shadow-hover);
         }
 
-        /* Grid Layout */
+        /* Grid */
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -398,32 +355,11 @@
             transition: var(--transition);
             margin: 4px;
             min-height: 44px;
-            position: relative;
-            overflow: hidden;
         }
 
         .btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
-            transform: none !important;
-        }
-
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.3);
-            transition: var(--transition);
-            transform: translate(-50%, -50%);
-        }
-
-        .btn:not(:disabled):hover::before {
-            width: 300px;
-            height: 300px;
         }
 
         .btn-primary {
@@ -431,7 +367,7 @@
             color: white;
         }
 
-        .btn-primary:hover {
+        .btn-primary:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
         }
@@ -441,19 +377,9 @@
             color: white;
         }
 
-        .btn-success:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
-        }
-
         .btn-danger {
             background: var(--danger-color);
             color: white;
-        }
-
-        .btn-danger:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
         }
 
         .btn-secondary {
@@ -499,11 +425,6 @@
             outline: none;
             border-color: var(--primary-color);
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-            transform: translateY(-1px);
-        }
-
-        .form-control:invalid {
-            border-color: var(--danger-color);
         }
 
         /* Modal */
@@ -517,18 +438,12 @@
             height: 100%;
             background: rgba(0,0,0,0.6);
             backdrop-filter: blur(5px);
-            animation: fadeIn 0.3s ease;
         }
 
         .modal.show {
             display: flex;
             align-items: center;
             justify-content: center;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
         }
 
         .modal-content {
@@ -589,167 +504,12 @@
             color: var(--dark-color);
         }
 
-        /* Statistics */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin: 20px 0;
-        }
-
-        .stat-card {
-            background: linear-gradient(135deg, var(--success-color) 0%, #20c997 100%);
-            color: white;
-            padding: 25px;
-            border-radius: var(--border-radius);
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 100%;
-            height: 100%;
-            background: rgba(255,255,255,0.1);
-            transform: rotate(45deg);
-            transition: var(--transition);
-        }
-
-        .stat-card:hover::before {
-            right: -30%;
-        }
-
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: 700;
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .stat-label {
-            font-size: 0.9rem;
-            opacity: 0.9;
-            font-weight: 500;
-        }
-
-        /* Exam Question */
-        .question-card {
-            background: white;
-            border-radius: var(--border-radius);
-            padding: 25px;
-            margin-bottom: 20px;
-            border-left: 5px solid var(--primary-color);
-            box-shadow: var(--card-shadow);
-        }
-
-        .question-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .question-number {
-            background: var(--primary-color);
-            color: white;
-            padding: 8px 12px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-
-        .question-points {
-            color: var(--success-color);
-            font-weight: 600;
-        }
-
-        .question-text {
-            font-size: 1.1rem;
-            margin-bottom: 15px;
-            line-height: 1.6;
-        }
-
-        .question-options {
-            margin: 15px 0;
-        }
-
-        .option {
-            display: flex;
-            align-items: center;
-            margin: 12px 0;
-            padding: 15px;
-            background: #f8f9fa;
-            border: 2px solid transparent;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: var(--transition);
-            position: relative;
-        }
-
-        .option:hover {
-            background: #e9ecef;
-            border-color: var(--primary-color);
-            transform: translateX(5px);
-        }
-
-        .option.selected {
-            background: rgba(102, 126, 234, 0.1);
-            border-color: var(--primary-color);
-        }
-
-        .option input[type="radio"] {
-            margin-right: 12px;
-            transform: scale(1.2);
-        }
-
-        /* Timer */
-        .timer-container {
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            background: white;
-            padding: 15px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--card-shadow);
-            z-index: 1000;
-        }
-
-        .timer {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--danger-color);
-            text-align: center;
-        }
-
-        .timer.warning {
-            animation: pulse 1s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
         /* Alerts */
         .alert {
             padding: 15px;
             margin-bottom: 20px;
             border-radius: 8px;
             position: relative;
-            overflow: hidden;
-        }
-
-        .alert::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
         }
 
         .alert-success {
@@ -758,18 +518,10 @@
             border: 1px solid rgba(40, 167, 69, 0.2);
         }
 
-        .alert-success::before {
-            background: var(--success-color);
-        }
-
         .alert-error {
             background: rgba(220, 53, 69, 0.1);
             color: #721c24;
             border: 1px solid rgba(220, 53, 69, 0.2);
-        }
-
-        .alert-error::before {
-            background: var(--danger-color);
         }
 
         .alert-info {
@@ -778,34 +530,7 @@
             border: 1px solid rgba(23, 162, 184, 0.2);
         }
 
-        .alert-info::before {
-            background: var(--info-color);
-        }
-
-        /* Floating Action Button */
-        .fab {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-size: 24px;
-            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
-            transition: var(--transition);
-            z-index: 1000;
-        }
-
-        .fab:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 25px rgba(102, 126, 234, 0.6);
-        }
-
-        /* Responsive Design */
+        /* Responsive */
         @media (max-width: 768px) {
             .container {
                 padding: 0 15px;
@@ -826,10 +551,6 @@
                 gap: 15px;
             }
 
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
             .modal-content {
                 width: 95%;
                 padding: 20px;
@@ -838,137 +559,17 @@
             .page-title {
                 font-size: 2rem;
             }
-
-            .timer-container {
-                position: relative;
-                top: auto;
-                right: auto;
-                margin-bottom: 20px;
-            }
-
-            .fab {
-                bottom: 20px;
-                right: 20px;
-                width: 50px;
-                height: 50px;
-                font-size: 20px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .btn {
-                width: 100%;
-                margin: 5px 0;
-            }
-
-            .logo {
-                font-size: 1.4rem;
-            }
-
-            .option {
-                padding: 12px;
-            }
         }
 
         /* Utility Classes */
         .hidden { display: none !important; }
         .text-center { text-align: center; }
-        .text-left { text-align: left; }
-        .text-right { text-align: right; }
         .mt-10 { margin-top: 10px; }
         .mt-20 { margin-top: 20px; }
         .mt-30 { margin-top: 30px; }
         .mb-10 { margin-bottom: 10px; }
         .mb-20 { margin-bottom: 20px; }
         .mb-30 { margin-bottom: 30px; }
-        .p-10 { padding: 10px; }
-        .p-20 { padding: 20px; }
-
-        /* Dark mode support */
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --background-color: #1a1a1a;
-                --dark-color: #ffffff;
-                --light-color: #2d2d2d;
-            }
-            
-            body {
-                background-color: var(--background-color);
-                color: var(--dark-color);
-            }
-            
-            .card {
-                background: #2d2d2d;
-                color: var(--dark-color);
-            }
-            
-            .form-control {
-                background: #2d2d2d;
-                color: var(--dark-color);
-                border-color: #444;
-            }
-            
-            .modal-content {
-                background: #2d2d2d;
-                color: var(--dark-color);
-            }
-        }
-
-        /* Print styles */
-        @media print {
-            .header, .fab, .timer-container {
-                display: none;
-            }
-            
-            .card {
-                box-shadow: none;
-                border: 1px solid #ddd;
-                page-break-inside: avoid;
-            }
-            
-            .btn {
-                display: none;
-            }
-        }
-
-        /* Performance optimizations */
-        .card, .btn, .option {
-            contain: layout style paint;
-        }
-
-        /* Accessibility */
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border: 0;
-        }
-
-        /* Focus styles for accessibility */
-        .btn:focus,
-        .form-control:focus,
-        .option:focus {
-            outline: 2px solid var(--primary-color);
-            outline-offset: 2px;
-        }
-
-        /* Reduced motion support */
-        @media (prefers-reduced-motion: reduce) {
-            * {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
-        }
     </style>
 </head>
 <body>
@@ -985,17 +586,17 @@
                 <nav class="navbar">
                     <div class="logo">คลังข้อสอบออนไลน์</div>
                     <div class="nav-links" id="navLinks">
-                        <a onclick="showPage('home')" role="button" tabindex="0">หน้าหลัก</a>
-                        <a onclick="showPage('categories')" role="button" tabindex="0">หมวดหมู่</a>
-                        <a onclick="showPage('exams')" role="button" tabindex="0">ข้อสอบ</a>
-                        <a onclick="showPage('statistics')" role="button" tabindex="0">สถิติ</a>
-                        <a onclick="showPage('profile')" role="button" tabindex="0">โปรไฟล์</a>
+                        <a onclick="showPage('home')">หน้าหลัก</a>
+                        <a onclick="showPage('categories')">หมวดหมู่</a>
+                        <a onclick="showPage('exams')">ข้อสอบ</a>
+                        <a onclick="showPage('statistics')">สถิติ</a>
+                        <a onclick="showPage('profile')">โปรไฟล์</a>
                     </div>
                     <div class="user-info" id="userInfo">
                         <div class="user-avatar" id="userAvatar">?</div>
                         <span id="userName">ยังไม่ได้เข้าสู่ระบบ</span>
                         <span class="membership-badge free" id="membershipBadge">FREE</span>
-                        <button class="btn btn-secondary" onclick="logout()" id="logoutBtn">ออกจากระบบ</button>
+                        <button class="btn btn-secondary" onclick="logout()">ออกจากระบบ</button>
                     </div>
                 </nav>
             </div>
@@ -1011,18 +612,18 @@
                             <h1 class="page-title" style="margin-bottom: 10px;">เข้าสู่ระบบ</h1>
                             <p>ยินดีต้อนรับสู่คลังข้อสอบออนไลน์</p>
                         </div>
-                        <form id="loginForm" novalidate>
+                        <form id="loginForm">
                             <div class="form-group">
                                 <label for="loginEmail">อีเมล</label>
                                 <input type="email" class="form-control" id="loginEmail" required 
-                                       placeholder="กรอกอีเมลของคุณ" autocomplete="email">
+                                       placeholder="กรอกอีเมลของคุณ">
                             </div>
                             <div class="form-group">
                                 <label for="loginPassword">รหัสผ่าน</label>
                                 <input type="password" class="form-control" id="loginPassword" required 
-                                       placeholder="กรอกรหัสผ่าน" autocomplete="current-password">
+                                       placeholder="กรอกรหัสผ่าน">
                             </div>
-                            <button type="submit" class="btn btn-primary" style="width: 100%;" id="loginSubmitBtn">
+                            <button type="submit" class="btn btn-primary" style="width: 100%;">
                                 เข้าสู่ระบบ
                             </button>
                         </form>
@@ -1039,26 +640,26 @@
                             <h1 class="page-title" style="margin-bottom: 10px;">สมัครสมาชิก</h1>
                             <p>เข้าร่วมกับเราวันนี้</p>
                         </div>
-                        <form id="registerForm" novalidate>
+                        <form id="registerForm">
                             <div class="form-group">
                                 <label for="regEmail">อีเมล</label>
                                 <input type="email" class="form-control" id="regEmail" required 
-                                       placeholder="กรอกอีเมลของคุณ" autocomplete="email">
+                                       placeholder="กรอกอีเมลของคุณ">
                             </div>
                             <div class="form-group">
                                 <label for="regPassword">รหัสผ่าน</label>
                                 <input type="password" class="form-control" id="regPassword" required 
-                                       placeholder="รหัสผ่านอย่างน้อย 6 ตัวอักษร" autocomplete="new-password" minlength="6">
+                                       placeholder="รหัสผ่านอย่างน้อย 6 ตัวอักษร" minlength="6">
                             </div>
                             <div class="form-group">
                                 <label for="regUsername">ชื่อผู้ใช้</label>
                                 <input type="text" class="form-control" id="regUsername" required 
-                                       placeholder="ชื่อที่จะแสดงในระบบ" autocomplete="username">
+                                       placeholder="ชื่อที่จะแสดงในระบบ">
                             </div>
                             <div class="form-group">
                                 <label for="regFullName">ชื่อ-นามสกุล</label>
                                 <input type="text" class="form-control" id="regFullName" 
-                                       placeholder="ชื่อจริงของคุณ" autocomplete="name">
+                                       placeholder="ชื่อจริงของคุณ">
                             </div>
                             <div class="form-group">
                                 <label for="regRole">ประเภทผู้ใช้</label>
@@ -1067,7 +668,7 @@
                                     <option value="teacher">ครู/อาจารย์</option>
                                 </select>
                             </div>
-                            <button type="submit" class="btn btn-primary" style="width: 100%;" id="registerSubmitBtn">
+                            <button type="submit" class="btn btn-primary" style="width: 100%;">
                                 สมัครสมาชิก
                             </button>
                         </form>
@@ -1149,29 +750,6 @@
                     </div>
                 </div>
 
-                <!-- Take Exam Page -->
-                <div id="takeExamPage" class="page hidden">
-                    <div class="timer-container" id="timerContainer">
-                        <div class="timer" id="examTimer">--:--</div>
-                        <div style="font-size: 0.8rem; text-align: center; margin-top: 5px;">เหลือเวลา</div>
-                    </div>
-                    <div class="card">
-                        <div class="modal-header">
-                            <h2 class="modal-title" id="currentExamTitle">ชื่อข้อสอบ</h2>
-                            <div id="examProgress" style="font-weight: 600; color: var(--primary-color);">
-                                ข้อ 1 จาก 10
-                            </div>
-                        </div>
-                        <div id="examQuestions"></div>
-                        <div class="text-center mt-30">
-                            <button class="btn btn-success" onclick="submitExam()" id="submitExamBtn">
-                                ส่งคำตอบ
-                            </button>
-                            <button class="btn btn-secondary" onclick="cancelExam()">ยกเลิก</button>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Statistics Page -->
                 <div id="statisticsPage" class="page hidden">
                     <h1 class="page-title">สถิติการทำข้อสอบ</h1>
@@ -1208,9 +786,6 @@
                             <div class="form-group">
                                 <label>ประเภทสมาชิก</label>
                                 <p id="currentMembership">FREE</p>
-                                <button class="btn btn-primary" onclick="upgradeMembership()" id="upgradeBtn" disabled>
-                                    อัปเกรดเป็น VIP
-                                </button>
                             </div>
                         </div>
                     </div>
@@ -1271,39 +846,48 @@
                     <label for="examPassScore">คะแนนผ่าน (%)</label>
                     <input type="number" class="form-control" id="examPassScore" min="0" max="100" value="60">
                 </div>
-                <div class="form-group">
-                    <label>
-                        <input type="checkbox" id="examRandomize"> สลับลำดับข้อ
-                    </label>
-                </div>
                 <button type="submit" class="btn btn-primary">เพิ่มข้อสอบ</button>
             </form>
         </div>
     </div>
 
-    <!-- Floating Action Button -->
-    <button class="fab hidden" id="fab" onclick="scrollToTop()" title="กลับขึ้นด้านบน">
-        ↑
-    </button>
-
-    <!-- Scripts -->
+    <!-- JavaScript -->
     <script>
         // ===============================
         // GLOBAL VARIABLES & CONFIG
         // ===============================
         
-        // Supabase Configuration - แก้ไข URL และ KEY ตามของจริง
-        const _sb_url = 'https://mbeifgxprqywtzqedjww.supabase.co';
-        const _sb_key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1iZWlmZ3hwcnF5d3R6cWVkand3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgzMTI0MzQsImV4cCI6MjA2Mzg4ODQzNH0.Ti2iDDWMp6-BkNDpdD7HmtfnbJiUr-N6vNZk-FurSTA';
+        // ⚠️ แก้ไข URL และ KEY ตรงนี้
+        const SUPABASE_URL = 'https://mbeifgxprqywtzqedjww.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1iZWlmZ3hwcnF5d3R6cWVkand3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgzMTI0MzQsImV4cCI6MjA2Mzg4ODQzNH0.Ti2iDDWMp6-BkNDpdD7HmtfnbJiUr-N6vNZk-FurSTA';
         
-        let _sb, _u = null, _ce = null, _et = null, _etl = 0, _ua = {}, _asl = null;
+        let supabase;
+        let currentUser = null;
+        let authStateListener = null;
 
-        // Initialize Supabase
-        try {
-            _sb = window.supabase.createClient(_sb_url, _sb_key);
-        } catch (error) {
-            console.error('Supabase initialization error:', error);
-            _sa('เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง', 'error');
+        // ===============================
+        // SUPABASE INITIALIZATION
+        // ===============================
+        
+        async function initializeSupabase() {
+            try {
+                console.log('🔄 Initializing Supabase...');
+                
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+                    auth: {
+                        persistSession: true,
+                        autoRefreshToken: true
+                    }
+                });
+                
+                console.log('✅ Supabase initialized');
+                return true;
+                
+            } catch (error) {
+                console.error('❌ Supabase initialization failed:', error);
+                showAlert('เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง', 'error');
+                return false;
+            }
         }
 
         // ===============================
@@ -1312,55 +896,55 @@
         
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('🚀 App initializing...');
+            
             try {
-                await _ia();
+                showLoadingScreen();
+                
+                // Initialize Supabase
+                const supabaseReady = await initializeSupabase();
+                if (!supabaseReady) {
+                    console.error('Failed to initialize Supabase');
+                    hideLoadingScreen();
+                    return;
+                }
+                
+                // Setup event listeners
+                setupEventListeners();
+                
+                // Check authentication
+                await checkAuthStatus();
+                
+                hideLoadingScreen();
+                showInitialPage();
+                
             } catch (error) {
                 console.error('❌ App initialization error:', error);
-                _sa('เกิดข้อผิดพลาดในการเริ่มต้นแอป', 'error');
+                showAlert('เกิดข้อผิดพลาดในการเริ่มต้นแอป', 'error');
+                hideLoadingScreen();
             }
         });
 
-        async function _ia() {
-            // Show loading screen
-            _sls();
-            
-            // Setup event listeners
-            _sel();
-            
-            // Check authentication
-            await _cas();
-            
-            // Setup scroll listener for FAB
-            _ssl();
-            
-            // Hide loading screen
-            _hls();
-            
-            // Show appropriate page based on auth state
-            _sip();
-        }
-
-        function _sls() {
+        function showLoadingScreen() {
             document.getElementById('loadingScreen').classList.remove('hidden');
             document.getElementById('app').classList.add('hidden');
         }
 
-        function _hls() {
+        function hideLoadingScreen() {
             setTimeout(() => {
                 document.getElementById('loadingScreen').classList.add('hidden');
                 document.getElementById('app').classList.remove('hidden');
             }, 500);
         }
 
-        function _sip() {
-            if (_u) {
+        function showInitialPage() {
+            if (currentUser) {
                 console.log('👤 User authenticated, showing home');
-                _sp('home');
-                _uua(true);
+                showPage('home');
+                updateUIForAuthState(true);
             } else {
                 console.log('🔓 No user, showing login');
-                _sl();
-                _uua(false);
+                showLogin();
+                updateUIForAuthState(false);
             }
         }
 
@@ -1371,75 +955,47 @@
         function setupEventListeners() {
             console.log('🎛️ Setting up event listeners...');
             
-            // Forms
+            // Login form
             const loginForm = document.getElementById('loginForm');
-            const registerForm = document.getElementById('registerForm');
-            const addCategoryForm = document.getElementById('addCategoryForm');
-            const addExamForm = document.getElementById('addExamForm');
-            
             if (loginForm) {
                 loginForm.addEventListener('submit', handleLogin);
             }
             
+            // Register form
+            const registerForm = document.getElementById('registerForm');
             if (registerForm) {
                 registerForm.addEventListener('submit', handleRegister);
             }
             
+            // Category form
+            const addCategoryForm = document.getElementById('addCategoryForm');
             if (addCategoryForm) {
                 addCategoryForm.addEventListener('submit', handleAddCategory);
             }
             
+            // Exam form
+            const addExamForm = document.getElementById('addExamForm');
             if (addExamForm) {
                 addExamForm.addEventListener('submit', handleAddExam);
             }
             
             // Modal close on click outside
-            window.addEventListener('click', handleModalClick);
-            
-            // Keyboard navigation
-            document.addEventListener('keydown', handleKeyboardNavigation);
+            window.addEventListener('click', function(event) {
+                if (event.target.classList.contains('modal')) {
+                    event.target.classList.remove('show');
+                }
+            });
             
             console.log('✅ Event listeners setup complete');
         }
 
-        function handleModalClick(event) {
-            if (event.target.classList.contains('modal')) {
-                event.target.classList.remove('show');
-            }
-        }
-
-        function handleKeyboardNavigation(event) {
-            // Escape key closes modals
-            if (event.key === 'Escape') {
-                const openModal = document.querySelector('.modal.show');
-                if (openModal) {
-                    openModal.classList.remove('show');
-                }
-            }
-        }
-
-        function setupScrollListener() {
-            let lastScrollTop = 0;
-            window.addEventListener('scroll', () => {
-                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-                const fab = document.getElementById('fab');
-                
-                if (scrollTop > 300) {
-                    fab.classList.remove('hidden');
-                } else {
-                    fab.classList.add('hidden');
-                }
-                
-                lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
-            });
-        }
-
         // ===============================
-        // AUTHENTICATION - แก้ไขปัญหา
+        // AUTHENTICATION
         // ===============================
         
         async function checkAuthStatus() {
             console.log('🔍 Checking auth status...');
+            
             try {
                 const { data: { session }, error } = await supabase.auth.getSession();
                 
@@ -1449,7 +1005,7 @@
                 }
                 
                 if (session?.user) {
-                    console.log('✅ Session found, user:', session.user.email);
+                    console.log('✅ Session found:', session.user.email);
                     currentUser = session.user;
                     await loadUserProfile();
                 } else {
@@ -1457,13 +1013,13 @@
                     currentUser = null;
                 }
                 
-                // Setup auth state listener - แก้ไขปัญหา
+                // Setup auth listener
                 if (authStateListener) {
                     authStateListener.unsubscribe();
                 }
                 
                 authStateListener = supabase.auth.onAuthStateChange(async (event, session) => {
-                    console.log('🔄 Auth state changed:', event, session?.user?.email);
+                    console.log('🔄 Auth state changed:', event);
                     
                     if (event === 'SIGNED_IN' && session?.user) {
                         currentUser = session.user;
@@ -1473,7 +1029,6 @@
                         showAlert('เข้าสู่ระบบสำเร็จ', 'success');
                         showPage('home');
                     } else if (event === 'SIGNED_OUT') {
-                        // ✅ แก้ไขปัญหา logout - clear ข้อมูลทั้งหมด
                         await handleSignOut();
                     }
                 });
@@ -1484,58 +1039,13 @@
             }
         }
 
-        // ✅ แก้ไขปัญหา logout - ฟังก์ชันใหม่สำหรับจัดการ sign out
-        async function handleSignOut() {
-            console.log('🚪 Handling sign out...');
-            
-            // Clear all user data
-            currentUser = null;
-            currentExam = null;
-            userAnswers = {};
-            
-            // Clear timer
-            if (examTimer) {
-                clearInterval(examTimer);
-                examTimer = null;
-            }
-            
-            // Update UI immediately
-            updateUIForAuthState(false);
-            
-            showAlert('ออกจากระบบสำเร็จ', 'success');
-            showLogin();
-        }
-
-        // แก้ไข logout function
-        async function logout() {
-            console.log('🚪 Attempting logout...');
-            
-            try {
-                const { error } = await supabase.auth.signOut();
-                if (error) {
-                    console.error('❌ Logout error:', error);
-                    throw error;
-                }
-                
-                console.log('✅ Logout successful');
-                
-            } catch (error) {
-                console.error('❌ Logout failed:', error);
-                showAlert('เกิดข้อผิดพลาดในการออกจากระบบ', 'error');
-                
-                // Force logout anyway
-                await handleSignOut();
-            }
-        }
-
-        // ✅ แก้ไขปัญหา register redirect
         async function handleLogin(e) {
             e.preventDefault();
             console.log('🔐 Attempting login...');
             
             const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value;
-            const submitBtn = document.getElementById('loginSubmitBtn');
+            const submitBtn = e.target.querySelector('button[type="submit"]');
             
             if (!email || !password) {
                 showAlert('กรุณากรอกข้อมูลให้ครบถ้วน', 'error');
@@ -1543,7 +1053,7 @@
             }
             
             try {
-                setButtonLoading(submitBtn, true, 'กำลังเข้าสู่ระบบ...');
+                setButtonLoading(submitBtn, true);
                 
                 const { data, error } = await supabase.auth.signInWithPassword({
                     email: email,
@@ -1555,20 +1065,17 @@
                     throw error;
                 }
                 
-                console.log('✅ Login successful:', data.user.email);
+                console.log('✅ Login successful');
                 document.getElementById('loginForm').reset();
-                
-                // Don't redirect here, let the auth state listener handle it
                 
             } catch (error) {
                 console.error('❌ Login failed:', error);
                 showAlert(getErrorMessage(error), 'error');
             } finally {
-                setButtonLoading(submitBtn, false, 'เข้าสู่ระบบ');
+                setButtonLoading(submitBtn, false);
             }
         }
 
-        // ✅ แก้ไขปัญหา register redirect
         async function handleRegister(e) {
             e.preventDefault();
             console.log('📝 Attempting registration...');
@@ -1578,9 +1085,8 @@
             const username = document.getElementById('regUsername').value.trim();
             const fullName = document.getElementById('regFullName').value.trim();
             const role = document.getElementById('regRole').value;
-            const submitBtn = document.getElementById('registerSubmitBtn');
+            const submitBtn = e.target.querySelector('button[type="submit"]');
             
-            // Validation
             if (!email || !password || !username) {
                 showAlert('กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน', 'error');
                 return;
@@ -1591,17 +1097,9 @@
                 return;
             }
             
-            // Check email format
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                showAlert('รูปแบบอีเมลไม่ถูกต้อง', 'error');
-                return;
-            }
-            
             try {
-                setButtonLoading(submitBtn, true, 'กำลังสมัครสมาชิก...');
+                setButtonLoading(submitBtn, true);
                 
-                // สมัครผ่าน Supabase Auth
                 const { data, error } = await supabase.auth.signUp({
                     email: email,
                     password: password,
@@ -1619,36 +1117,48 @@
                     throw error;
                 }
                 
-                console.log('✅ Registration successful:', data);
-                
+                console.log('✅ Registration successful');
                 document.getElementById('registerForm').reset();
                 
                 if (data.user && !data.session) {
-                    // Email confirmation required
                     showAlert('สมัครสมาชิกสำเร็จ! กรุณาตรวจสอบอีเมลเพื่อยืนยันบัญชี', 'success');
                     showLogin();
-                } else if (data.session) {
-                    // Auto signed in - don't redirect here, let auth listener handle it
-                    showAlert('สมัครสมาชิกสำเร็จ!', 'success');
                 } else {
-                    // Fallback
                     showAlert('สมัครสมาชิกสำเร็จ!', 'success');
-                    showLogin();
                 }
                 
             } catch (error) {
                 console.error('❌ Registration failed:', error);
                 showAlert(getErrorMessage(error), 'error');
             } finally {
-                setButtonLoading(submitBtn, false, 'สมัครสมาชิก');
+                setButtonLoading(submitBtn, false);
             }
         }
 
-        async function loadUserProfile() {
-            if (!currentUser) {
-                console.log('⚠️ No current user to load profile');
-                return;
+        async function logout() {
+            console.log('🚪 Attempting logout...');
+            
+            try {
+                const { error } = await supabase.auth.signOut();
+                if (error) throw error;
+                console.log('✅ Logout successful');
+            } catch (error) {
+                console.error('❌ Logout failed:', error);
+                showAlert('เกิดข้อผิดพลาดในการออกจากระบบ', 'error');
+                await handleSignOut();
             }
+        }
+
+        async function handleSignOut() {
+            console.log('🚪 Handling sign out...');
+            currentUser = null;
+            updateUIForAuthState(false);
+            showAlert('ออกจากระบบสำเร็จ', 'success');
+            showLogin();
+        }
+
+        async function loadUserProfile() {
+            if (!currentUser) return;
             
             console.log('👤 Loading user profile...');
             
@@ -1661,20 +1171,18 @@
                 
                 if (error && error.code !== 'PGRST116') {
                     console.error('❌ Profile load error:', error);
-                    // Don't throw, create profile instead
                 }
                 
                 if (data) {
-                    console.log('✅ Profile loaded:', data);
+                    console.log('✅ Profile loaded');
                     currentUser.profile = data;
                 } else {
-                    console.log('ℹ️ No profile found, creating...');
+                    console.log('ℹ️ Creating new profile...');
                     await createUserProfile();
                 }
                 
             } catch (error) {
                 console.error('❌ Load profile error:', error);
-                // ไม่ throw error เพื่อไม่ให้ app crash
             }
         }
 
@@ -1698,7 +1206,6 @@
                 
                 if (error) {
                     console.error('❌ Create profile error:', error);
-                    // Don't throw, use default profile
                     currentUser.profile = {
                         username: currentUser.email.split('@')[0],
                         full_name: '',
@@ -1708,12 +1215,11 @@
                     return;
                 }
                 
-                console.log('✅ Profile created:', data);
+                console.log('✅ Profile created');
                 currentUser.profile = data;
                 
             } catch (error) {
                 console.error('❌ Failed to create profile:', error);
-                // Use default profile
                 currentUser.profile = {
                     username: currentUser.email.split('@')[0],
                     full_name: '',
@@ -1723,7 +1229,6 @@
             }
         }
 
-        // ✅ แก้ไข updateUIForAuthState function
         function updateUIForAuthState(isAuthenticated) {
             console.log('🔄 Updating UI for auth state:', isAuthenticated);
             
@@ -1733,34 +1238,20 @@
             const registerPage = document.getElementById('registerPage');
             
             if (isAuthenticated) {
-                // แสดง nav links และ user info
                 if (navLinks) navLinks.style.display = 'flex';
                 if (userInfo) userInfo.style.display = 'flex';
-                
-                // ซ่อน login/register pages
                 if (loginPage) loginPage.classList.add('hidden');
                 if (registerPage) registerPage.classList.add('hidden');
-                
-                // Update user info
                 updateUserInfo();
-                
             } else {
-                // ซ่อน nav links และ user info เมื่อไม่ได้ login
                 if (navLinks) navLinks.style.display = 'none';
                 if (userInfo) userInfo.style.display = 'none';
-                
-                // Clear user info
                 clearUserInfo();
             }
         }
 
         function updateUserInfo() {
-            if (!currentUser?.profile) {
-                console.log('⚠️ No current user or profile to update info');
-                return;
-            }
-            
-            console.log('🔄 Updating user info...');
+            if (!currentUser?.profile) return;
             
             const profile = currentUser.profile;
             const userName = document.getElementById('userName');
@@ -1768,15 +1259,10 @@
             const membershipBadge = document.getElementById('membershipBadge');
             
             if (userName && userAvatar && membershipBadge) {
-                // Update user name
                 const displayName = profile.username || currentUser.email;
                 userName.textContent = displayName;
+                userAvatar.textContent = displayName.charAt(0).toUpperCase();
                 
-                // Update avatar
-                const initial = displayName.charAt(0).toUpperCase();
-                userAvatar.textContent = initial;
-                
-                // Update membership badge
                 const membership = profile.membership_type || 'free';
                 membershipBadge.textContent = membership.toUpperCase();
                 membershipBadge.className = `membership-badge ${membership}`;
@@ -1786,21 +1272,12 @@
                 const teacherControls = document.getElementById('teacherControls');
                 const teacherExamControls = document.getElementById('teacherExamControls');
                 
-                if (teacherControls) {
-                    teacherControls.classList.toggle('hidden', !isTeacher);
-                }
-                if (teacherExamControls) {
-                    teacherExamControls.classList.toggle('hidden', !isTeacher);
-                }
-                
-                console.log('✅ User info updated');
+                if (teacherControls) teacherControls.classList.toggle('hidden', !isTeacher);
+                if (teacherExamControls) teacherExamControls.classList.toggle('hidden', !isTeacher);
             }
         }
 
-        // ✅ เพิ่มฟังก์ชันสำหรับ clear user info
         function clearUserInfo() {
-            console.log('🧹 Clearing user info...');
-            
             const userName = document.getElementById('userName');
             const userAvatar = document.getElementById('userAvatar');
             const membershipBadge = document.getElementById('membershipBadge');
@@ -1812,16 +1289,10 @@
                 membershipBadge.className = 'membership-badge free';
             }
             
-            // Hide teacher controls
             const teacherControls = document.getElementById('teacherControls');
             const teacherExamControls = document.getElementById('teacherExamControls');
-            
-            if (teacherControls) {
-                teacherControls.classList.add('hidden');
-            }
-            if (teacherExamControls) {
-                teacherExamControls.classList.add('hidden');
-            }
+            if (teacherControls) teacherControls.classList.add('hidden');
+            if (teacherExamControls) teacherExamControls.classList.add('hidden');
         }
 
         // ===============================
@@ -1831,23 +1302,18 @@
         function showPage(pageId) {
             console.log('📄 Showing page:', pageId);
             
-            // Check auth for protected pages
             if (!currentUser && pageId !== 'home') {
-                console.log('🔒 Protected page, redirecting to login');
                 showLogin();
                 return;
             }
             
-            // Hide all pages
             const pages = document.querySelectorAll('.page');
             pages.forEach(page => page.classList.add('hidden'));
             
-            // Show selected page
             const targetPage = document.getElementById(pageId + 'Page');
             if (targetPage) {
                 targetPage.classList.remove('hidden');
                 
-                // Load page data
                 switch(pageId) {
                     case 'categories':
                         loadCategories();
@@ -1863,27 +1329,23 @@
                         loadProfile();
                         break;
                 }
-            } else {
-                console.error('❌ Page not found:', pageId);
             }
         }
 
         function showLogin() {
-            console.log('🔓 Showing login page');
             const pages = document.querySelectorAll('.page');
             pages.forEach(page => page.classList.add('hidden'));
             document.getElementById('loginPage').classList.remove('hidden');
         }
 
         function showRegister() {
-            console.log('📝 Showing register page');
             const pages = document.querySelectorAll('.page');
             pages.forEach(page => page.classList.add('hidden'));
             document.getElementById('registerPage').classList.remove('hidden');
         }
 
         // ===============================
-        // ✅ CATEGORIES MANAGEMENT - แก้ไขปัญหาเพิ่ม-ลบ
+        // CATEGORIES MANAGEMENT
         // ===============================
         
         async function loadCategories() {
@@ -1892,19 +1354,15 @@
             try {
                 showLoadingInContainer(container);
                 
-                // ✅ แก้ไข: ใช้ query ง่ายๆ ก่อน
                 const { data: categories, error } = await supabase
                     .from('categories')
                     .select('*')
                     .order('created_at', { ascending: false });
                 
-                if (error) {
-                    console.error('Load categories error:', error);
-                    throw error;
-                }
+                if (error) throw error;
                 
                 if (!categories || categories.length === 0) {
-                    container.innerHTML = '<div class="card"><p class="text-center">ยังไม่มีหมวดหมู่ <br><small>ครูสามารถเพิ่มหมวดหมู่ได้ที่ปุ่มด้านบน</small></p></div>';
+                    container.innerHTML = '<div class="card"><p class="text-center">ยังไม่มีหมวดหมู่<br><small>ครูสามารถเพิ่มหมวดหมู่ได้ที่ปุ่มด้านบน</small></p></div>';
                     return;
                 }
                 
@@ -1922,17 +1380,16 @@
                 
             } catch (error) {
                 console.error('Load categories error:', error);
-                showErrorInContainer(container, 'เกิดข้อผิดพลาดในการโหลดหมวดหมู่: ' + error.message);
+                showErrorInContainer(container, 'เกิดข้อผิดพลาดในการโหลดหมวดหมู่');
             }
         }
 
         function canManageCategory(category) {
             if (!currentUser?.profile) return false;
             const profile = currentUser.profile;
-            return profile.role === 'admin' || profile.role === 'teacher' || category.created_by === currentUser.id;
+            return profile.role === 'admin' || profile.role === 'teacher';
         }
 
-        // ✅ แก้ไขปัญหาเพิ่มหมวดหมู่
         async function handleAddCategory(e) {
             e.preventDefault();
             
@@ -1945,8 +1402,6 @@
             }
             
             try {
-                console.log('Adding category:', { name, description, created_by: currentUser.id });
-                
                 const { data, error } = await supabase
                     .from('categories')
                     .insert([{
@@ -1956,12 +1411,8 @@
                     }])
                     .select();
                 
-                if (error) {
-                    console.error('Add category error:', error);
-                    throw error;
-                }
+                if (error) throw error;
                 
-                console.log('Category added successfully:', data);
                 showAlert('เพิ่มหมวดหมู่สำเร็จ', 'success');
                 closeModal('addCategoryModal');
                 document.getElementById('addCategoryForm').reset();
@@ -1969,49 +1420,38 @@
                 
             } catch (error) {
                 console.error('Add category error:', error);
-                showAlert('เกิดข้อผิดพลาดในการเพิ่มหมวดหมู่: ' + error.message, 'error');
+                showAlert(getErrorMessage(error), 'error');
             }
         }
 
-        // ✅ แก้ไขปัญหาลบหมวดหมู่
         async function deleteCategory(id) {
-            if (!confirm('คุณแน่ใจหรือไม่ที่จะลบหมวดหมื่นี้? ข้อสอบทั้งหมดในหมวดหมู่นี้จะถูกลบด้วย')) {
-                return;
-            }
+            if (!confirm('คุณแน่ใจหรือไม่ที่จะลบหมวดหมู่นี้?')) return;
             
             try {
-                console.log('Deleting category:', id);
-                
                 const { error } = await supabase
                     .from('categories')
                     .delete()
                     .eq('id', id);
                 
-                if (error) {
-                    console.error('Delete category error:', error);
-                    throw error;
-                }
+                if (error) throw error;
                 
-                console.log('Category deleted successfully');
                 showAlert('ลบหมวดหมู่สำเร็จ', 'success');
                 loadCategories();
                 
             } catch (error) {
                 console.error('Delete category error:', error);
-                showAlert('เกิดข้อผิดพลาดในการลบหมวดหมู่: ' + error.message, 'error');
+                showAlert(getErrorMessage(error), 'error');
             }
         }
 
         function viewCategoryExams(categoryId) {
             const categoryFilter = document.getElementById('categoryFilter');
-            if (categoryFilter) {
-                categoryFilter.value = categoryId;
-            }
+            if (categoryFilter) categoryFilter.value = categoryId;
             showPage('exams');
         }
 
         // ===============================
-        // ✅ EXAMS MANAGEMENT - แก้ไขปัญหาเพิ่ม-ลบ
+        // EXAMS MANAGEMENT
         // ===============================
         
         async function loadExams() {
@@ -2023,10 +1463,7 @@
                 
                 let query = supabase
                     .from('exams')
-                    .select(`
-                        *,
-                        categories (name)
-                    `)
+                    .select(`*, categories (name)`)
                     .order('created_at', { ascending: false });
                 
                 if (categoryId) {
@@ -2035,13 +1472,10 @@
                 
                 const { data: exams, error } = await query;
                 
-                if (error) {
-                    console.error('Load exams error:', error);
-                    throw error;
-                }
+                if (error) throw error;
                 
                 if (!exams || exams.length === 0) {
-                    container.innerHTML = '<div class="card"><p class="text-center">ยังไม่มีข้อสอบ <br><small>ครูสามารถเพิ่มข้อสอบได้ที่ปุ่มด้านบน</small></p></div>';
+                    container.innerHTML = '<div class="card"><p class="text-center">ยังไม่มีข้อสอบ<br><small>ครูสามารถเพิ่มข้อสอบได้ที่ปุ่มด้านบน</small></p></div>';
                     return;
                 }
                 
@@ -2056,18 +1490,15 @@
                         </div>
                         <small style="color: #666;">สร้างเมื่อ: ${new Date(exam.created_at).toLocaleDateString('th-TH')}</small>
                         <div class="mt-20">
-                            <button class="btn btn-success" onclick="startExam(${exam.id})">ทำข้อสอบ</button>
-                            ${canManageExam(exam) ? `
-                                <button class="btn btn-outline" onclick="editExam(${exam.id})">แก้ไข</button>
-                                <button class="btn btn-danger" onclick="deleteExam(${exam.id})">ลบ</button>
-                            ` : ''}
+                            <button class="btn btn-success" onclick="showAlert('ฟีเจอร์ทำข้อสอบกำลังพัฒนา', 'info')">ทำข้อสอบ</button>
+                            ${canManageExam(exam) ? `<button class="btn btn-danger" onclick="deleteExam(${exam.id})">ลบ</button>` : ''}
                         </div>
                     </div>
                 `).join('');
                 
             } catch (error) {
                 console.error('Load exams error:', error);
-                showErrorInContainer(container, 'เกิดข้อผิดพลาดในการโหลดข้อสอบ: ' + error.message);
+                showErrorInContainer(container, 'เกิดข้อผิดพลาดในการโหลดข้อสอบ');
             }
         }
 
@@ -2084,10 +1515,7 @@
                     .select('id, name')
                     .order('name');
                 
-                if (error) {
-                    console.error('Load categories for filter error:', error);
-                    return;
-                }
+                if (error) throw error;
                 
                 const filterSelect = document.getElementById('categoryFilter');
                 const examCategorySelect = document.getElementById('examCategory');
@@ -2109,7 +1537,6 @@
             }
         }
 
-        // ✅ แก้ไขปัญหาเพิ่มข้อสอบ
         async function handleAddExam(e) {
             e.preventDefault();
             
@@ -2118,7 +1545,6 @@
             const categoryId = document.getElementById('examCategory').value;
             const timeLimit = parseInt(document.getElementById('examTimeLimit').value);
             const passScore = parseFloat(document.getElementById('examPassScore').value);
-            const isRandomized = document.getElementById('examRandomize').checked;
             
             if (!title || !categoryId) {
                 showAlert('กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน', 'error');
@@ -2126,8 +1552,6 @@
             }
             
             try {
-                console.log('Adding exam:', { title, description, categoryId, timeLimit, passScore, isRandomized });
-                
                 const { data, error } = await supabase
                     .from('exams')
                     .insert([{
@@ -2136,18 +1560,13 @@
                         category_id: categoryId,
                         time_limit: timeLimit,
                         pass_score: passScore,
-                        is_randomized: isRandomized,
                         created_by: currentUser.id,
-                        is_published: true // เผยแพร่ทันที
+                        is_published: true
                     }])
                     .select();
                 
-                if (error) {
-                    console.error('Add exam error:', error);
-                    throw error;
-                }
+                if (error) throw error;
                 
-                console.log('Exam added successfully:', data);
                 showAlert('เพิ่มข้อสอบสำเร็จ', 'success');
                 closeModal('addExamModal');
                 document.getElementById('addExamForm').reset();
@@ -2155,76 +1574,40 @@
                 
             } catch (error) {
                 console.error('Add exam error:', error);
-                showAlert('เกิดข้อผิดพลาดในการเพิ่มข้อสอบ: ' + error.message, 'error');
+                showAlert(getErrorMessage(error), 'error');
             }
         }
 
-        // ✅ แก้ไขปัญหาลบข้อสอบ
         async function deleteExam(examId) {
             if (!confirm('คุณแน่ใจหรือไม่ที่จะลบข้อสอบนี้?')) return;
             
             try {
-                console.log('Deleting exam:', examId);
-                
                 const { error } = await supabase
                     .from('exams')
                     .delete()
                     .eq('id', examId);
                 
-                if (error) {
-                    console.error('Delete exam error:', error);
-                    throw error;
-                }
+                if (error) throw error;
                 
-                console.log('Exam deleted successfully');
                 showAlert('ลบข้อสอบสำเร็จ', 'success');
                 loadExams();
                 
             } catch (error) {
                 console.error('Delete exam error:', error);
-                showAlert('เกิดข้อผิดพลาดในการลบข้อสอบ: ' + error.message, 'error');
-            }
-        }
-
-        // ===============================
-        // EXAM TAKING
-        // ===============================
-        
-        async function startExam(examId) {
-            try {
-                showAlert('ฟีเจอร์ทำข้อสอบกำลังพัฒนา', 'info');
-                // TODO: Implement exam taking functionality
-            } catch (error) {
-                console.error('Start exam error:', error);
                 showAlert(getErrorMessage(error), 'error');
             }
         }
 
-        function cancelExam() {
-            if (confirm('คุณแน่ใจหรือไม่ที่จะยกเลิกการทำข้อสอบ?')) {
-                if (examTimer) {
-                    clearInterval(examTimer);
-                    examTimer = null;
-                }
-                currentExam = null;
-                userAnswers = {};
-                showPage('exams');
-            }
-        }
-
         // ===============================
-        // STATISTICS
+        // STATISTICS & PROFILE
         // ===============================
         
         async function loadStatistics() {
-            if (!currentUser) return;
-            
             const container = document.getElementById('userStats');
             
             try {
                 showLoadingInContainer(container);
                 
-                // Mock statistics for now
                 const userStats = {
                     total_exams: 0,
                     average_score: 0,
@@ -2233,27 +1616,24 @@
                 };
                 
                 container.innerHTML = `
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <span class="stat-number">${userStats.total_exams || 0}</span>
-                            <span class="stat-label">ข้อสอบที่ทำแล้ว</span>
-                        </div>
-                        <div class="stat-card">
-                            <span class="stat-number">${(userStats.average_score || 0).toFixed(1)}%</span>
-                            <span class="stat-label">คะแนนเฉลี่ย</span>
-                        </div>
-                        <div class="stat-card">
-                            <span class="stat-number">${(userStats.highest_score || 0).toFixed(1)}%</span>
-                            <span class="stat-label">คะแนนสูงสุด</span>
-                        </div>
-                        <div class="stat-card">
-                            <span class="stat-number">${userStats.passed_exams || 0}</span>
-                            <span class="stat-label">ข้อสอบที่ผ่าน</span>
+                    <div class="grid">
+                        <div class="card">
+                            <h3 style="color: var(--success-color);">📊 สถิติของคุณ</h3>
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 20px;">
+                                <div style="text-align: center;">
+                                    <div style="font-size: 2rem; font-weight: 700; color: var(--primary-color);">${userStats.total_exams}</div>
+                                    <div>ข้อสอบที่ทำแล้ว</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="font-size: 2rem; font-weight: 700; color: var(--success-color);">${userStats.passed_exams}</div>
+                                    <div>ข้อสอบที่ผ่าน</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="card mt-30">
-                        <h3>ประวัติการทำข้อสอบล่าสุด</h3>
-                        <p class="text-center" style="margin-top: 20px;">ยังไม่มีประวัติการทำข้อสอบ</p>
+                    <div class="card mt-20">
+                        <h3>📈 ประวัติการทำข้อสอบ</h3>
+                        <p class="text-center" style="margin-top: 20px; color: #666;">ยังไม่มีประวัติการทำข้อสอบ<br><small>เริ่มทำข้อสอบเพื่อดูสถิติของคุณ</small></p>
                     </div>
                 `;
                 
@@ -2263,21 +1643,18 @@
             }
         }
 
-        // ===============================
-        // PROFILE MANAGEMENT
-        // ===============================
-        
         async function loadProfile() {
-            if (!currentUser) return;
+            if (!currentUser?.profile) return;
             
-            const profile = currentUser.profile || {};
-            
+            const profile = currentUser.profile;
             document.getElementById('profileUsername').value = profile.username || '';
             document.getElementById('profileFullName').value = profile.full_name || '';
             document.getElementById('currentMembership').textContent = (profile.membership_type || 'free').toUpperCase();
         }
 
         async function updateProfile() {
+            if (!currentUser) return;
+            
             const username = document.getElementById('profileUsername').value.trim();
             const fullName = document.getElementById('profileFullName').value.trim();
             
@@ -2308,10 +1685,6 @@
             }
         }
 
-        function upgradeMembership() {
-            showAlert('ฟีเจอร์อัปเกรด VIP กำลังพัฒนา', 'info');
-        }
-
         // ===============================
         // MODAL FUNCTIONS
         // ===============================
@@ -2334,14 +1707,11 @@
         // ===============================
         
         function showAlert(message, type = 'info') {
-            console.log(`📢 Alert [${type}]:`, message);
-            
-            // Remove existing alerts
-            const existingAlerts = document.querySelectorAll('.alert');
+            const existingAlerts = document.querySelectorAll('.alert-toast');
             existingAlerts.forEach(alert => alert.remove());
             
             const alertDiv = document.createElement('div');
-            alertDiv.className = `alert alert-${type}`;
+            alertDiv.className = `alert alert-${type} alert-toast`;
             alertDiv.style.cssText = `
                 position: fixed;
                 top: 20px;
@@ -2359,26 +1729,11 @@
                 </div>
             `;
             
-            // Add CSS animation
-            if (!document.querySelector('#alert-styles')) {
-                const style = document.createElement('style');
-                style.id = 'alert-styles';
-                style.textContent = `
-                    @keyframes slideDown {
-                        from { opacity: 0; transform: translateX(-50%) translateY(-20px); }
-                        to { opacity: 1; transform: translateX(-50%) translateY(0); }
-                    }
-                `;
-                document.head.appendChild(style);
-            }
-            
             document.body.appendChild(alertDiv);
             
-            // Auto remove after 5 seconds
             setTimeout(() => {
                 if (alertDiv.parentNode) {
-                    alertDiv.style.animation = 'slideDown 0.3s ease reverse';
-                    setTimeout(() => alertDiv.remove(), 300);
+                    alertDiv.remove();
                 }
             }, 5000);
         }
@@ -2395,9 +1750,7 @@
         function showErrorInContainer(container, message) {
             container.innerHTML = `
                 <div class="card">
-                    <div class="alert alert-error">
-                        ${message}
-                    </div>
+                    <div class="alert alert-error">${message}</div>
                     <div class="text-center">
                         <button class="btn btn-primary" onclick="location.reload()">ลองใหม่</button>
                     </div>
@@ -2405,14 +1758,14 @@
             `;
         }
 
-        function setButtonLoading(button, isLoading, loadingText = 'กำลังโหลด...') {
+        function setButtonLoading(button, isLoading) {
             if (isLoading) {
                 button.disabled = true;
                 button.setAttribute('data-original-text', button.textContent);
-                button.innerHTML = `<div class="loading-spinner" style="width: 20px; height: 20px; margin: 0 auto;"></div>`;
+                button.innerHTML = '<div class="loading-spinner" style="width: 20px; height: 20px; margin: 0 auto;"></div>';
             } else {
                 button.disabled = false;
-                const originalText = button.getAttribute('data-original-text') || loadingText;
+                const originalText = button.getAttribute('data-original-text') || 'ส่ง';
                 button.textContent = originalText;
                 button.removeAttribute('data-original-text');
             }
@@ -2432,441 +1785,23 @@
                 'Invalid login credentials': 'อีเมลหรือรหัสผ่านไม่ถูกต้อง',
                 'User already registered': 'อีเมลนี้ถูกใช้งานแล้ว',
                 'Password should be at least 6 characters': 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร',
-                'Email not confirmed': 'กรุณายืนยันอีเมลก่อนเข้าสู่ระบบ',
-                'Email rate limit exceeded': 'ส่งอีเมลบ่อยเกินไป กรุณารอสักครู่',
-                'Invalid email': 'รูปแบบอีเมลไม่ถูกต้อง',
-                'Weak password': 'รหัสผ่านไม่ปลอดภัย กรุณาใช้รหัสผ่านที่แข็งแรงกว่านี้',
-                'Email already registered': 'อีเมลนี้ถูกใช้งานแล้ว',
-                'Signup not allowed': 'ไม่อนุญาตให้สมัครสมาชิกในขณะนี้',
-                'Invalid verification token': 'รหัสยืนยันไม่ถูกต้อง',
-                'Token expired': 'รหัสยืนยันหมดอายุแล้ว'
+                'Email not confirmed': 'กรุณายืนยันอีเมลก่อนเข้าสู่ระบบ'
             };
             
             return errorMessages[error.message] || error.message || 'เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ';
         }
 
-        function scrollToTop() {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        }
-
         // ===============================
-        // PLACEHOLDER FUNCTIONS (for future development)
-        // ===============================
-        
-        function editExam(examId) {
-            showAlert('ฟีเจอร์แก้ไขข้อสอบกำลังพัฒนา', 'info');
-            console.log('Edit exam:', examId);
-        }
-
-        function submitExam() {
-            showAlert('ฟีเจอร์ส่งคำตอบกำลังพัฒนา', 'info');
-        }
-
-        // ===============================
-        // DEMO DATA FUNCTIONS
-        // ===============================
-        
-        async function createDemoData() {
-            if (!currentUser || !currentUser.profile || currentUser.profile.role !== 'teacher') {
-                showAlert('เฉพาะครูเท่านั้นที่สามารถสร้างข้อมูลตัวอย่างได้', 'error');
-                return;
-            }
-
-            try {
-                console.log('Creating demo data...');
-                
-                // Create demo categories
-                const demoCategories = [
-                    { name: 'คณิตศาสตร์', description: 'วิชาคณิตศาสตร์ทุกระดับ' },
-                    { name: 'ภาษาไทย', description: 'วิชาภาษาไทยและวรรณคดี' },
-                    { name: 'ภาษาอังกฤษ', description: 'วิชาภาษาอังกฤษและไวยากรณ์' },
-                    { name: 'วิทยาศาสตร์', description: 'วิทยาศาสตร์ทั่วไป ฟิสิกส์ เคมี ชีววิทยา' },
-                    { name: 'สังคมศึกษา', description: 'ประวัติศาสตร์ ภูมิศาสตร์ การเมือง' }
-                ];
-
-                for (const category of demoCategories) {
-                    const { error } = await supabase
-                        .from('categories')
-                        .insert([{
-                            ...category,
-                            created_by: currentUser.id
-                        }]);
-                    
-                    if (error && !error.message.includes('duplicate')) {
-                        console.error('Error creating demo category:', error);
-                    }
-                }
-
-                // Load categories to get IDs
-                const { data: categories } = await supabase
-                    .from('categories')
-                    .select('*')
-                    .eq('created_by', currentUser.id);
-
-                if (categories && categories.length > 0) {
-                    // Create demo exams
-                    const demoExams = [
-                        {
-                            title: 'คณิตศาสตร์ ม.3 บทที่ 1',
-                            description: 'ทดสอบความรู้เรื่องจำนวนจริง',
-                            category_id: categories.find(c => c.name === 'คณิตศาสตร์')?.id,
-                            time_limit: 60,
-                            pass_score: 60,
-                            is_randomized: false
-                        },
-                        {
-                            title: 'ภาษาไทย การอ่านจับใจความ',
-                            description: 'ทดสอบทักษะการอ่านและความเข้าใจ',
-                            category_id: categories.find(c => c.name === 'ภาษาไทย')?.id,
-                            time_limit: 45,
-                            pass_score: 70,
-                            is_randomized: true
-                        },
-                        {
-                            title: 'English Grammar Basic',
-                            description: 'Basic English grammar test',
-                            category_id: categories.find(c => c.name === 'ภาษาอังกฤษ')?.id,
-                            time_limit: 30,
-                            pass_score: 65,
-                            is_randomized: false
-                        }
-                    ];
-
-                    for (const exam of demoExams) {
-                        if (exam.category_id) {
-                            const { error } = await supabase
-                                .from('exams')
-                                .insert([{
-                                    ...exam,
-                                    created_by: currentUser.id,
-                                    is_published: true
-                                }]);
-                            
-                            if (error && !error.message.includes('duplicate')) {
-                                console.error('Error creating demo exam:', error);
-                            }
-                        }
-                    }
-                }
-
-                showAlert('สร้างข้อมูลตัวอย่างสำเร็จ!', 'success');
-                loadCategories();
-                loadExams();
-
-            } catch (error) {
-                console.error('Error creating demo data:', error);
-                showAlert('เกิดข้อผิดพลาดในการสร้างข้อมูลตัวอย่าง: ' + error.message, 'error');
-            }
-        }
-
-        // Add button to create demo data (for teachers)
-        function addDemoDataButton() {
-            if (currentUser?.profile?.role === 'teacher' || currentUser?.profile?.role === 'admin') {
-                const homeContent = document.querySelector('#homePage .grid');
-                if (homeContent && !document.getElementById('demoDataCard')) {
-                    const demoCard = document.createElement('div');
-                    demoCard.id = 'demoDataCard';
-                    demoCard.className = 'card';
-                    demoCard.innerHTML = `
-                        <h3>🎯 ข้อมูลตัวอย่าง</h3>
-                        <p>สร้างข้อมูลตัวอย่างสำหรับทดสอบระบบ (สำหรับครูเท่านั้น)</p>
-                        <div class="mt-20">
-                            <button class="btn btn-secondary" onclick="createDemoData()">สร้างข้อมูลตัวอย่าง</button>
-                        </div>
-                    `;
-                    homeContent.appendChild(demoCard);
-                }
-            }
-        }
-
-        // ===============================
-        // ERROR HANDLING & DEBUGGING
-        // ===============================
-        
-        window.addEventListener('error', function(e) {
-            console.error('Global error:', e.error);
-            showAlert('เกิดข้อผิดพลาดในระบบ กรุณาลองใหม่อีกครั้ง', 'error');
-        });
-
-        window.addEventListener('unhandledrejection', function(e) {
-            console.error('Unhandled promise rejection:', e.reason);
-            showAlert('เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต', 'error');
-        });
-
-        // ===============================
-        // KEYBOARD SHORTCUTS
-        // ===============================
-        
-        document.addEventListener('keydown', function(e) {
-            // Keyboard shortcuts (only when not in input fields)
-            if (!['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) {
-                switch(e.key) {
-                    case '1':
-                        if (currentUser) showPage('home');
-                        break;
-                    case '2':
-                        if (currentUser) showPage('categories');
-                        break;
-                    case '3':
-                        if (currentUser) showPage('exams');
-                        break;
-                    case '4':
-                        if (currentUser) showPage('statistics');
-                        break;
-                    case '5':
-                        if (currentUser) showPage('profile');
-                        break;
-                    case 'Escape':
-                        // Close any open modals
-                        document.querySelectorAll('.modal.show').forEach(modal => {
-                            modal.classList.remove('show');
-                        });
-                        break;
-                }
-            }
-        });
-
-        // ===============================
-        // PERFORMANCE MONITORING
-        // ===============================
-        
-        function measurePerformance(name, fn) {
-            return async function(...args) {
-                const start = performance.now();
-                try {
-                    const result = await fn.apply(this, args);
-                    const end = performance.now();
-                    console.log(`⚡ ${name} took ${(end - start).toFixed(2)}ms`);
-                    return result;
-                } catch (error) {
-                    const end = performance.now();
-                    console.error(`❌ ${name} failed after ${(end - start).toFixed(2)}ms:`, error);
-                    throw error;
-                }
-            };
-        }
-
-        // Wrap performance-critical functions
-        loadCategories = measurePerformance('loadCategories', loadCategories);
-        loadExams = measurePerformance('loadExams', loadExams);
-        loadStatistics = measurePerformance('loadStatistics', loadStatistics);
-
-        // ===============================
-        // SERVICE WORKER REGISTRATION
-        // ===============================
-        
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(function(registration) {
-                        console.log('✅ ServiceWorker registration successful');
-                    })
-                    .catch(function(err) {
-                        console.log('❌ ServiceWorker registration failed:', err);
-                    });
-            });
-        }
-
-        // ===============================
-        // THEME MANAGEMENT
-        // ===============================
-        
-        function toggleTheme() {
-            const body = document.body;
-            const isDark = body.classList.contains('dark-theme');
-            
-            if (isDark) {
-                body.classList.remove('dark-theme');
-                localStorage.setItem('theme', 'light');
-            } else {
-                body.classList.add('dark-theme');
-                localStorage.setItem('theme', 'dark');
-            }
-        }
-
-        function loadTheme() {
-            const savedTheme = localStorage.getItem('theme');
-            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            
-            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
-                document.body.classList.add('dark-theme');
-            }
-        }
-
-        // Load theme on startup
-        loadTheme();
-
-        // ===============================
-        // CLEANUP ON PAGE UNLOAD
+        // CLEANUP
         // ===============================
         
         window.addEventListener('beforeunload', function() {
-            // Clear timers
-            if (examTimer) {
-                clearInterval(examTimer);
-            }
-            
-            // Unsubscribe from auth changes
             if (authStateListener) {
                 authStateListener.unsubscribe();
             }
-            
-            console.log('🧹 App cleanup completed');
         });
 
-        // ===============================
-        // HELPER FUNCTIONS FOR UI
-        // ===============================
-        
-        function formatDate(dateString) {
-            try {
-                return new Date(dateString).toLocaleDateString('th-TH', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                });
-            } catch (error) {
-                return 'ไม่ระบุ';
-            }
-        }
-
-        function formatTime(seconds) {
-            const minutes = Math.floor(seconds / 60);
-            const remainingSeconds = seconds % 60;
-            return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
-        }
-
-        function copyToClipboard(text) {
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(text).then(() => {
-                    showAlert('คัดลอกแล้ว!', 'success');
-                }).catch(() => {
-                    showAlert('ไม่สามารถคัดลอกได้', 'error');
-                });
-            } else {
-                // Fallback for older browsers
-                const textArea = document.createElement('textarea');
-                textArea.value = text;
-                document.body.appendChild(textArea);
-                textArea.select();
-                try {
-                    document.execCommand('copy');
-                    showAlert('คัดลอกแล้ว!', 'success');
-                } catch (err) {
-                    showAlert('ไม่สามารถคัดลอกได้', 'error');
-                }
-                document.body.removeChild(textArea);
-            }
-        }
-
-        // ===============================
-        // PROGRESSIVE WEB APP FEATURES
-        // ===============================
-        
-        let deferredPrompt;
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            console.log('💾 PWA install prompt available');
-            e.preventDefault();
-            deferredPrompt = e;
-            showInstallPrompt();
-        });
-
-        function showInstallPrompt() {
-            if (deferredPrompt && !localStorage.getItem('pwa-dismissed')) {
-                const installBanner = document.createElement('div');
-                installBanner.style.cssText = `
-                    position: fixed;
-                    bottom: 20px;
-                    left: 20px;
-                    right: 20px;
-                    background: var(--primary-color);
-                    color: white;
-                    padding: 15px;
-                    border-radius: 10px;
-                    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-                    z-index: 10000;
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    animation: slideUp 0.3s ease;
-                `;
-                
-                installBanner.innerHTML = `
-                    <div>
-                        <strong>📱 ติดตั้งแอป</strong><br>
-                        <small>เพิ่มไปยังหน้าจอหลักเพื่อใช้งานง่ายขึ้น</small>
-                    </div>
-                    <div>
-                        <button onclick="installPWA()" style="background: white; color: var(--primary-color); border: none; padding: 8px 16px; border-radius: 5px; margin-right: 10px; cursor: pointer;">ติดตั้ง</button>
-                        <button onclick="dismissInstallPrompt()" style="background: none; color: white; border: 1px solid white; padding: 8px 16px; border-radius: 5px; cursor: pointer;">ปิด</button>
-                    </div>
-                `;
-                
-                document.body.appendChild(installBanner);
-                
-                // Add animation CSS
-                if (!document.querySelector('#pwa-styles')) {
-                    const style = document.createElement('style');
-                    style.id = 'pwa-styles';
-                    style.textContent = `
-                        @keyframes slideUp {
-                            from { opacity: 0; transform: translateY(100px); }
-                            to { opacity: 1; transform: translateY(0); }
-                        }
-                    `;
-                    document.head.appendChild(style);
-                }
-            }
-        }
-
-        function installPWA() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        console.log('✅ PWA installation accepted');
-                        showAlert('กำลังติดตั้งแอป...', 'success');
-                    } else {
-                        console.log('❌ PWA installation dismissed');
-                    }
-                    deferredPrompt = null;
-                    dismissInstallPrompt();
-                });
-            }
-        }
-
-        function dismissInstallPrompt() {
-            const banner = document.querySelector('[style*="slideUp"]');
-            if (banner) {
-                banner.remove();
-            }
-            localStorage.setItem('pwa-dismissed', 'true');
-        }
-
-        // ===============================
-        // FINAL INITIALIZATION
-        // ===============================
-        
-        // Override console.log in production
-        if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-            console.log = function() {}; // Disable console.log in production
-        }
-
-        console.log('🎉 คลังข้อสอบออนไลน์ initialized successfully!');
-        console.log('📱 Features: Authentication, Categories, Exams, Statistics, Profile');
-        console.log('🔧 Tech: Supabase, Vanilla JS, CSS Grid, PWA');
-        console.log('🌟 Made with ❤️ for Thai education');
-
-        // Auto-add demo data button when user becomes teacher
-        setInterval(() => {
-            if (currentUser?.profile?.role === 'teacher' || currentUser?.profile?.role === 'admin') {
-                addDemoDataButton();
-            }
-        }, 5000);
+        console.log('🎉 คลังข้อสอบออนไลน์ loaded successfully!');
     </script>
 </body>
 </html>
