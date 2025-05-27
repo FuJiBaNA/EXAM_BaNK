@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#667eea">
+    <title>ออฟไลน์ - คลังข้อสอบออนไลน์</title>
+    
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* CSS Variables */
+        :root {
+            --primary-color: #667eea;
+            --primary-dark: #5a6fd8;
+            --secondary-color: #764ba2;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --background-color: #f5f7fa;
+            --font-family: 'Sarabun', 'Tahoma', sans-serif;
+        }
+
+        /* Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: linear-gradient(135deg, var(--background-color) 0%, #e3f2fd 100%);
+            color: var(--dark-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Container */
+        .offline-container {
+            max-width: 600px;
+            width: 100%;
+            background: white;
+            padding: 50px 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .offline-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        }
+
+        /* Icon Animation */
+        .offline-icon {
+            font-size: 80px;
+            margin-bottom: 30px;
+            animation: bounce 2s infinite;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-20px);
+            }
+            60% {
+                transform: translateY(-10px);
+            }
+        }
+
+        /* Typography */
+        h1 {
+            color: var(--dark-color);
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            font-weight: 500;
+        }
+
+        .description {
+            color: #777;
+            margin-bottom: 40px;
+            line-height: 1.8;
+            font-size: 1rem;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 600;
+            font-family: inherit;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin: 8px;
+            min-height: 50px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            transition: all 0.3s ease;
+            transform: translate(-50%, -50%);
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Status */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            background: rgba(220, 53, 69, 0.1);
+            border: 1px solid rgba(220, 53, 69, 0.2);
+            border-radius: 25px;
+            color: var(--danger-color);
+            font-weight: 500;
+            margin-bottom: 30px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--danger-color);
+            border-radius: 50%;
+            animation: pulse-dot 1.5s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Features */
+        .offline-features {
+            margin: 40px 0;
+            text-align: left;
+        }
+
+        .offline-features h3 {
+            color: var(--dark-color);
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.4rem;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+
+        .feature-icon {
+            font-size: 20px;
+            width: 30px;
+            text-align: center;
+        }
+
+        .feature-text {
+            flex: 1;
+            color: #666;
+        }
+
+        /* Connection status */
+        .connection-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            z-index: 1000;
+        }
+
+        .connection-status.offline {
+            background: rgba(220, 53, 69, 0.1);
+            color: var(--danger-color);
+            border: 1px solid rgba(220, 53, 69, 0.2);
+        }
+
+        .connection-status.online {
+            background: rgba(40, 167, 69, 0.1);
+            color: var(--success-color);
+            border: 1px solid rgba(40, 167, 69, 0.2);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .offline-container {
+                padding: 40px 20px;
+                margin: 10px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .subtitle {
+                font-size: 1.1rem;
+            }
+
+            .offline-icon {
+                font-size: 60px;
+                margin-bottom: 20px;
+            }
+
+            .btn {
+                width: 100%;
+                margin: 5px 0;
+            }
+
+            .connection-status {
+                position: relative;
+                top: auto;
+                right: auto;
+                margin-bottom: 20px;
+                display: inline-block;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .offline-container {
+                padding: 30px 15px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+
+        /* Loading animation */
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading .loading-spinner {
+            display: inline-block;
+        }
+
+        /* Accessibility */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* Focus styles */
+        .btn:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --background-color: #1a1a1a;
+                --dark-color: #ffffff;
+                --light-color: #2d2d2d;
+            }
+            
+            body {
+                background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            }
+            
+            .offline-container {
+                background: #2d2d2d;
+                color: var(--dark-color);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Connection Status -->
+    <div class="connection-status offline" id="connectionStatus">
+        <span class="status-dot"></span>
+        ออฟไลน์
+    </div>
+
+    <!-- Main Container -->
+    <div class="offline-container">
+        <!-- Icon -->
+        <div class="offline-icon">📡</div>
+        
+        <!-- Content -->
+        <h1>ไม่มีการเชื่อมต่ออินเทอร์เน็ต</h1>
+        <p class="subtitle">กำลังทำงานในโหมดออฟไลน์</p>
+        
+        <div class="status-indicator">
+            <span class="status-dot"></span>
+            <span>ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้</span>
+        </div>
+        
+        <div class="description">
+            <p>กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ตของคุณ หรือลองใหม่อีกครั้งในอีกสักครู่</p>
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="margin: 30px 0;">
+            <button class="btn btn-primary" onclick="retryConnection()" id="retryBtn">
+                <span class="loading-spinner"></span>
+                <span class="btn-text">ลองเชื่อมต่อใหม่</span>
+            </button>
+            <button class="btn btn-secondary" onclick="goHome()">กลับหน้าหลัก</button>
+        </div>
+
+        <!-- Offline Features -->
+        <div class="offline-features">
+            <h3>สิ่งที่คุณสามารถทำได้ในโหมดออฟไลน์</h3>
+            <ul class="feature-list">
+                <li>
+                    <span class="feature-icon">📖</span>
+                    <span class="feature-text">อ่านข้อสอบที่เคยดูไว้แล้ว</span>
+                </li>
+                <li>
+                    <span class="feature-icon">📊</span>
+                    <span class="feature-text">ดูสถิติที่บันทึกไว้ในเครื่อง</span>
+                </li>
+                <li>
+                    <span class="feature-icon">⚙️</span>
+                    <span class="feature-text">เปลี่ยนการตั้งค่าแอป</span>
+                </li>
+                <li>
+                    <span class="feature-icon">🔄</span>
+                    <span class="feature-text">ข้อมูลจะซิงค์เมื่อกลับมาออนไลน์</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Tips -->
+        <div style="margin-top: 30px; padding: 20px; background: rgba(23, 162, 184, 0.1); border-radius: 10px; text-align: left;">
+            <h4 style="color: var(--info-color); margin-bottom: 10px;">💡 เคล็ดลับ:</h4>
+            <ul style="color: #666; padding-left: 20px;">
+                <li>ตรวจสอบการเชื่อมต่อ Wi-Fi หรือข้อมูลมือถือ</li>
+                <li>ลองรีเฟรชหน้าเว็บ (F5 หรือ Ctrl+R)</li>
+                <li>ตรวจสอบว่าเซิร์ฟเวอร์ไม่ได้อยู่ระหว่างปรับปรุง</li>
+                <li>ลองเปิดเว็บไซต์อื่นเพื่อทดสอบการเชื่อมต่อ</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Connection monitoring
+        let isRetrying = false;
+
+        // Check connection status
+        function updateConnectionStatus() {
+            const status = navigator.onLine;
+            const statusElement = document.getElementById('connectionStatus');
+            
+            if (status) {
+                statusElement.className = 'connection-status online';
+                statusElement.innerHTML = '<span style="width: 8px; height: 8px; background: var(--success-color); border-radius: 50%; display: inline-block; margin-right: 8px;"></span>ออนไลน์';
+                
+                // Auto redirect when back online
+                setTimeout(() => {
+                    if (navigator.onLine) {
+                        window.location.href = '/';
+                    }
+                }, 2000);
+            } else {
+                statusElement.className = 'connection-status offline';
+                statusElement.innerHTML = '<span class="status-dot"></span>ออฟไลน์';
+            }
+        }
+
+        // Retry connection
+        async function retryConnection() {
+            if (isRetrying) return;
+            
+            isRetrying = true;
+            const retryBtn = document.getElementById('retryBtn');
+            retryBtn.classList.add('loading');
+            retryBtn.disabled = true;
+            
+            try {
+                // Try to fetch a small resource
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 10000);
+                
+                const response = await fetch('/manifest.json', {
+                    method: 'HEAD',
+                    cache: 'no-cache',
+                    signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                
+                if (response.ok) {
+                    // Connection restored
+                    retryBtn.querySelector('.btn-text').textContent = 'เชื่อมต่อสำเร็จ!';
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 1000);
+                } else {
+                    throw new Error('Server not responding');
+                }
+                
+            } catch (error) {
+                console.log('Still offline:', error.message);
+                retryBtn.querySelector('.btn-text').textContent = 'ยังไม่สามารถเชื่อมต่อได้';
+                
+                setTimeout(() => {
+                    retryBtn.querySelector('.btn-text').textContent = 'ลองเชื่อมต่อใหม่';
+                    retryBtn.classList.remove('loading');
+                    retryBtn.disabled = false;
+                    isRetrying = false;
+                }, 2000);
+            }
+        }
+
+        // Go to home page
+        function goHome() {
+            window.location.href = '/';
+        }
+
+        // Handle keyboard shortcuts
+        document.addEventListener('keydown', function(event) {
+            // F5 or Ctrl+R - Retry
+            if (event.key === 'F5' || (event.ctrlKey && event.key === 'r')) {
+                event.preventDefault();
+                retryConnection();
+            }
+            
+            // Escape - Go home
+            if (event.key === 'Escape') {
+                goHome();
+            }
+        });
+
+        // Listen for connection changes
+        window.addEventListener('online', updateConnectionStatus);
+        window.addEventListener('offline', updateConnectionStatus);
+
+        // Initial status check
+        updateConnectionStatus();
+
+        // Periodic connection check
+        setInterval(() => {
+            if (!isRetrying) {
+                updateConnectionStatus();
+            }
+        }, 30000);
+
+        // Service Worker messaging
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.addEventListener('message', event => {
+                if (event.data && event.data.type === 'CACHE_UPDATED') {
+                    // New content available
+                    showUpdateAvailable();
+                }
+            });
+        }
+
+        function showUpdateAvailable() {
+            const banner = document.createElement('div');
+            banner.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                background: var(--success-color);
+                color: white;
+                padding: 10px;
+                text-align: center;
+                z-index: 10000;
+                transform: translateY(-100%);
+                transition: transform 0.3s ease;
+            `;
+            banner.innerHTML = `
+                <span>มีเนื้อหาใหม่พร้อมใช้งาน</span>
+                <button onclick="location.reload()" style="margin-left: 10px; background: white; color: var(--success-color); border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer;">รีเฟรช</button>
+                <button onclick="this.parentElement.remove()" style="margin-left: 5px; background: transparent; color: white; border: 1px solid white; padding: 5px 10px; border-radius: 3px; cursor: pointer;">ปิด</button>
+            `;
+            
+            document.body.appendChild(banner);
+            setTimeout(() => {
+                banner.style.transform = 'translateY(0)';
+            }, 100);
+        }
+
+        // Analytics (if online)
+        if (navigator.onLine && typeof gtag !== 'undefined') {
+            gtag('event', 'page_view', {
+                page_title: 'Offline Page',
+                page_location: window.location.href
+            });
+        }
+
+        console.log('🔄 Offline page loaded');
+        console.log('📱 User Agent:', navigator.userAgent);
+        console.log('🌐 Connection:', navigator.onLine ? 'Online' : 'Offline');
+    </script>
+</body>
+</html>
