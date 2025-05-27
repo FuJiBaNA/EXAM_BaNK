@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "คลังข้อสอบออนไลน์ - ระบบข้อสอบที่ทันสมัย รองรับภาษาไทย 100%",
   "main": "index.html",
-  "outputDirectory": "build",
   "scripts": {
     "dev": "npx serve . -p 3000",
     "build": "echo 'Static site - no build needed'",
@@ -31,7 +30,7 @@
     "url": "https://github.com/FuJiBaNA/EXAM_BaNK.git"
   },
   "homepage": "https://exam-ba-mnvqo5gs3-fujibanas-projects.vercel.app",
-  "devDependencies": {},
+  "devDependencies": { "outputDirectory": "build"},
   "browserslist": [
     "> 1%",
     "last 2 versions",
