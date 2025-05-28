@@ -1257,8 +1257,8 @@
         // ===============================
         
         // ⚠️ แก้ไข URL และ KEY ตรงนี้
-        const SUPABASE_URL = 'https://mbeifgxprqywtzqedjww.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1iZWlmZ3hwcnF5d3R6cWVkand3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDgzMTI0MzQsImV4cCI6MjA2Mzg4ODQzNH0.Ti2iDDWMp6-BkNDpdD7HmtfnbJiUr-N6vNZk-FurSTA';
+        const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+        const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
         
         let supabase;
         let currentUser = null;
@@ -2113,7 +2113,7 @@
             alertDiv.className = `alert alert-${type} alert-toast`;
             alertDiv.style.cssText = `
                 position: fixed;
-                top: 100px;
+                top: 20px;
                 left: 50%;
                 transform: translateX(-50%);
                 z-index: 10000;
@@ -2124,7 +2124,7 @@
             alertDiv.innerHTML = `
                 <div style="display: flex; align-items: center; justify-content: space-between;">
                     <span>${message}</span>
-                    <button onclick="this.parentElement.parentElement.remove()" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; margin-left: 10px; opacity: 1;">&times;</button>
+                    <button onclick="this.parentElement.parentElement.remove()" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; margin-left: 10px; opacity: 0.7;">&times;</button>
                 </div>
             `;
             
@@ -2193,17 +2193,246 @@
         // PLACEHOLDER FUNCTIONS - เพิ่มฟังก์ชันที่เหลือตามความต้องการ
         async function loadCategories() {
             const container = document.getElementById('categoriesList');
-            container.innerHTML = '<div class="card"><p class="text-center">ยังไม่มีหมวดหมู่<br><small>กรุณาเพิ่มข้อมูล</small></p></div>';
+            
+            try {
+                showLoadingInContainer(container);
+                
+                const { data: categories, error } = await supabase
+                    .from('categories')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+                
+                if (error) throw error;
+                
+                if (!categories || categories.length === 0) {
+                    container.innerHTML = '<div class="card"><p class="text-center">ยังไม่มีหมวดหมู่<br><small>ครูสามารถเพิ่มหมวดหมู่ได้ที่ปุ่มด้านบน</small></p></div>';
+                    return;
+                }
+                
+                container.innerHTML = categories.map(category => `
+                    <div class="card">
+                        <h3>${escapeHtml(category.name)}</h3>
+                        <p>${escapeHtml(category.description || 'ไม่มีคำอธิบาย')}</p>
+                        <small style="color: #666;">สร้างเมื่อ: ${new Date(category.created_at).toLocaleDateString('th-TH')}</small>
+                        <div class="mt-20">
+                            <button class="btn btn-primary" onclick="viewCategoryExams(${category.id})">ดูข้อสอบ</button>
+                            ${canManageCategory(category) ? `<button class="btn btn-danger" onclick="deleteCategory(${category.id})">ลบ</button>` : ''}
+                        </div>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Load categories error:', error);
+                showErrorInContainer(container, 'เกิดข้อผิดพลาดในการโหลดหมวดหมู่');
+            }
+        }
+
+        function canManageCategory(category) {
+            if (!currentUser?.profile) return false;
+            const profile = currentUser.profile;
+            return profile.role === 'admin' || profile.role === 'teacher';
+        }
+
+        async function deleteCategory(id) {
+            if (!confirm('คุณแน่ใจหรือไม่ที่จะลบหมวดหมู่นี้?')) return;
+            
+            try {
+                const { error } = await supabase
+                    .from('categories')
+                    .delete()
+                    .eq('id', id);
+                
+                if (error) throw error;
+                
+                showAlert('ลบหมวดหมู่สำเร็จ', 'success');
+                loadCategories();
+                
+            } catch (error) {
+                console.error('Delete category error:', error);
+                showAlert(getErrorMessage(error), 'error');
+            }
+        }
+
+        function viewCategoryExams(categoryId) {
+            const categoryFilter = document.getElementById('categoryFilter');
+            if (categoryFilter) categoryFilter.value = categoryId;
+            showPage('exams');
         }
 
         async function loadExams() {
             const container = document.getElementById('examsList');
-            container.innerHTML = '<div class="card"><p class="text-center">ยังไม่มีข้อสอบ<br><small>กรุณาเพิ่มข้อมูล</small></p></div>';
+            const categoryId = document.getElementById('categoryFilter')?.value || '';
+            
+            try {
+                showLoadingInContainer(container);
+                
+                let query = supabase
+                    .from('exams')
+                    .select(`*, categories (name)`)
+                    .order('created_at', { ascending: false });
+                
+                if (categoryId) {
+                    query = query.eq('category_id', categoryId);
+                }
+                
+                const { data: exams, error } = await query;
+                
+                if (error) throw error;
+                
+                if (!exams || exams.length === 0) {
+                    container.innerHTML = '<div class="card"><p class="text-center">ยังไม่มีข้อสอบ<br><small>ครูสามารถเพิ่มข้อสอบได้ที่ปุ่มด้านบน</small></p></div>';
+                    return;
+                }
+                
+                container.innerHTML = exams.map(exam => `
+                    <div class="card">
+                        <h3>${escapeHtml(exam.title)}</h3>
+                        <p>${escapeHtml(exam.description || 'ไม่มีคำอธิบาย')}</p>
+                        <div class="mt-10">
+                            <p><strong>หมวดหมู่:</strong> ${escapeHtml(exam.categories?.name || 'ไม่ระบุ')}</p>
+                            <p><strong>เวลา:</strong> ${exam.time_limit || 'ไม่จำกัด'} นาที</p>
+                            <p><strong>คะแนนผ่าน:</strong> ${exam.pass_score || 60}%</p>
+                        </div>
+                        <small style="color: #666;">สร้างเมื่อ: ${new Date(exam.created_at).toLocaleDateString('th-TH')}</small>
+                        <div class="mt-20">
+                            <button class="btn btn-success" onclick="startExam(${exam.id})">ทำข้อสอบ</button>
+                            ${canManageExam(exam) ? `
+                                <button class="btn btn-info" onclick="manageQuestions(${exam.id})">จัดการคำถาม</button>
+                                <button class="btn btn-danger" onclick="deleteExam(${exam.id})">ลบ</button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Load exams error:', error);
+                showErrorInContainer(container, 'เกิดข้อผิดพลาดในการโหลดข้อสอบ');
+            }
+        }
+
+        function canManageExam(exam) {
+            if (!currentUser?.profile) return false;
+            const profile = currentUser.profile;
+            return profile.role === 'admin' || exam.created_by === currentUser.id;
+        }
+
+        async function deleteExam(examId) {
+            if (!confirm('คุณแน่ใจหรือไม่ที่จะลบข้อสอบนี้?')) return;
+            
+            try {
+                const { error } = await supabase
+                    .from('exams')
+                    .delete()
+                    .eq('id', examId);
+                
+                if (error) throw error;
+                
+                showAlert('ลบข้อสอบสำเร็จ', 'success');
+                loadExams();
+                
+            } catch (error) {
+                console.error('Delete exam error:', error);
+                showAlert(getErrorMessage(error), 'error');
+            }
+        }
+
+        function manageQuestions(examId) {
+            // Store current exam ID for question management
+            window.currentExamForQuestions = examId;
+            showPage('questionManagement');
         }
 
         async function loadStatistics() {
             const container = document.getElementById('userStats');
-            container.innerHTML = '<div class="card"><p class="text-center">ยังไม่มีสถิติ<br><small>เริ่มทำข้อสอบเพื่อดูสถิติ</small></p></div>';
+            
+            try {
+                showLoadingInContainer(container);
+                
+                // Load user exam attempts
+                const { data: attempts, error } = await supabase
+                    .from('exam_attempts')
+                    .select(`
+                        *,
+                        exams (title, pass_score)
+                    `)
+                    .eq('user_id', currentUser.id)
+                    .order('created_at', { ascending: false });
+                
+                if (error) throw error;
+                
+                // Calculate statistics
+                const totalExams = attempts.length;
+                const passedExams = attempts.filter(attempt => attempt.passed).length;
+                const averageScore = totalExams > 0 ? 
+                    Math.round(attempts.reduce((sum, attempt) => sum + attempt.score, 0) / totalExams) : 0;
+                const highestScore = totalExams > 0 ? 
+                    Math.max(...attempts.map(attempt => attempt.score)) : 0;
+                
+                container.innerHTML = `
+                    <div class="grid">
+                        <div class="card">
+                            <h3 style="color: var(--success-color);">📊 สถิติของคุณ</h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; margin-top: 20px;">
+                                <div style="text-align: center;">
+                                    <div style="font-size: 2rem; font-weight: 700; color: var(--primary-color);">${totalExams}</div>
+                                    <div>ข้อสอบที่ทำแล้ว</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="font-size: 2rem; font-weight: 700; color: var(--success-color);">${passedExams}</div>
+                                    <div>ข้อสอบที่ผ่าน</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="font-size: 2rem; font-weight: 700; color: var(--info-color);">${averageScore}%</div>
+                                    <div>คะแนนเฉลี่ย</div>
+                                </div>
+                                <div style="text-align: center;">
+                                    <div style="font-size: 2rem; font-weight: 700; color: var(--warning-color);">${highestScore}%</div>
+                                    <div>คะแนนสูงสุด</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card mt-20">
+                        <h3>📈 ประวัติการทำข้อสอบ</h3>
+                        ${attempts.length > 0 ? `
+                            <div style="margin-top: 20px;">
+                                ${attempts.map(attempt => `
+                                    <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 15px;">
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                            <h4 style="margin: 0;">${escapeHtml(attempt.exams.title)}</h4>
+                                            <span style="font-size: 1.2rem; font-weight: bold; color: ${attempt.passed ? 'var(--success-color)' : 'var(--danger-color)'};">
+                                                ${attempt.score}%
+                                            </span>
+                                        </div>
+                                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; font-size: 0.9rem; color: #666;">
+                                            <div>คะแนนผ่าน: ${attempt.exams.pass_score}%</div>
+                                            <div>คำตอบถูก: ${attempt.correct_answers}/${attempt.total_questions}</div>
+                                            <div>เวลาใช้: ${Math.floor(attempt.time_taken / 60)} นาที</div>
+                                            <div>วันที่: ${new Date(attempt.created_at).toLocaleDateString('th-TH')}</div>
+                                        </div>
+                                        <div style="margin-top: 10px;">
+                                            <span style="padding: 4px 12px; border-radius: 15px; font-size: 0.8rem; 
+                                                       background: ${attempt.passed ? 'var(--success-color)' : 'var(--danger-color)'}; 
+                                                       color: white;">
+                                                ${attempt.passed ? '✅ ผ่าน' : '❌ ไม่ผ่าน'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : `
+                            <p class="text-center" style="margin-top: 20px; color: #666;">
+                                ยังไม่มีประวัติการทำข้อสอบ<br>
+                                <small>เริ่มทำข้อสอบเพื่อดูสถิติของคุณ</small>
+                            </p>
+                        `}
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('Load statistics error:', error);
+                showErrorInContainer(container, 'เกิดข้อผิดพลาดในการโหลดสถิติ');
+            }
         }
 
         async function loadProfile() {
@@ -2211,15 +2440,137 @@
             const profile = currentUser.profile;
             document.getElementById('profileUsername').value = profile.username || '';
             document.getElementById('profileFullName').value = profile.full_name || '';
+            document.getElementById('currentMembership').textContent = (profile.membership_type || 'free').toUpperCase();
         }
 
         async function loadCategoriesForFilter() {
-            // Load categories for dropdowns
+            try {
+                const { data: categories, error } = await supabase
+                    .from('categories')
+                    .select('id, name')
+                    .order('name');
+                
+                if (error) throw error;
+                
+                const filterSelect = document.getElementById('categoryFilter');
+                const examCategorySelect = document.getElementById('examCategory');
+                const questionExamSelect = document.getElementById('questionExam');
+                
+                const options = categories.map(cat => 
+                    `<option value="${cat.id}">${escapeHtml(cat.name)}</option>`
+                ).join('');
+                
+                if (filterSelect) {
+                    filterSelect.innerHTML = '<option value="">ทุกหมวดหมู่</option>' + options;
+                }
+                
+                if (examCategorySelect) {
+                    examCategorySelect.innerHTML = '<option value="">เลือกหมวดหมู่</option>' + options;
+                }
+                
+                // Load exams for question modal
+                if (questionExamSelect) {
+                    await loadExamsForQuestions();
+                }
+                
+            } catch (error) {
+                console.error('Load categories for filter error:', error);
+            }
+        }
+
+        async function loadExamsForQuestions() {
+            try {
+                const { data: exams, error } = await supabase
+                    .from('exams')
+                    .select('id, title')
+                    .eq('created_by', currentUser.id)
+                    .order('title');
+                
+                if (error) throw error;
+                
+                const questionExamSelect = document.getElementById('questionExam');
+                if (questionExamSelect) {
+                    const options = exams.map(exam => 
+                        `<option value="${exam.id}">${escapeHtml(exam.title)}</option>`
+                    ).join('');
+                    questionExamSelect.innerHTML = '<option value="">เลือกข้อสอบ</option>' + options;
+                }
+                
+            } catch (error) {
+                console.error('Load exams for questions error:', error);
+            }
         }
 
         async function loadQuestionManagement() {
             const container = document.getElementById('questionsList');
-            container.innerHTML = '<div class="card"><p class="text-center">ยังไม่มีคำถาม<br><small>เพิ่มคำถามได้ที่ปุ่มด้านบน</small></p></div>';
+            
+            try {
+                showLoadingInContainer(container);
+                
+                const { data: questions, error } = await supabase
+                    .from('questions')
+                    .select(`*, exams (title)`)
+                    .eq('created_by', currentUser.id)
+                    .order('created_at', { ascending: false });
+                
+                if (error) throw error;
+                
+                if (!questions || questions.length === 0) {
+                    container.innerHTML = '<div class="card"><p class="text-center">ยังไม่มีคำถาม<br><small>เพิ่มคำถามได้ที่ปุ่มด้านบน</small></p></div>';
+                    return;
+                }
+                
+                container.innerHTML = questions.map(question => {
+                    let optionsDisplay = '';
+                    if (question.type === 'multiple_choice') {
+                        const options = JSON.parse(question.options);
+                        optionsDisplay = Object.entries(options).map(([key, value]) => 
+                            `<span style="margin-right: 15px;">${key}. ${escapeHtml(value)}</span>`
+                        ).join('<br>');
+                    } else if (question.type === 'true_false') {
+                        optionsDisplay = 'จริง / เท็จ';
+                    }
+                    
+                    return `
+                        <div class="question-item">
+                            <h4>${escapeHtml(question.question_text)}</h4>
+                            <p><strong>ข้อสอบ:</strong> ${escapeHtml(question.exams?.title || 'ไม่ระบุ')}</p>
+                            <p><strong>ประเภท:</strong> ${question.type === 'multiple_choice' ? 'เลือกตอบ' : 'จริง/เท็จ'}</p>
+                            <p><strong>ตัวเลือก:</strong><br>${optionsDisplay}</p>
+                            <p><strong>คำตอบ:</strong> <span style="color: var(--success-color); font-weight: bold;">${question.correct_answer}</span></p>
+                            <p><strong>คะแนน:</strong> ${question.points || 1}</p>
+                            ${question.explanation ? `<p><strong>คำอธิบาย:</strong> ${escapeHtml(question.explanation)}</p>` : ''}
+                            <div class="question-actions">
+                                <button class="btn btn-danger" onclick="deleteQuestion(${question.id})">ลบ</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+            } catch (error) {
+                console.error('Load questions error:', error);
+                showErrorInContainer(container, 'เกิดข้อผิดพลาดในการโหลดคำถาม');
+            }
+        }
+
+        async function deleteQuestion(questionId) {
+            if (!confirm('คุณแน่ใจหรือไม่ที่จะลบคำถามนี้?')) return;
+            
+            try {
+                const { error } = await supabase
+                    .from('questions')
+                    .delete()
+                    .eq('id', questionId);
+                
+                if (error) throw error;
+                
+                showAlert('ลบคำถามสำเร็จ', 'success');
+                loadQuestionManagement();
+                
+            } catch (error) {
+                console.error('Delete question error:', error);
+                showAlert(getErrorMessage(error), 'error');
+            }
         }
 
         function handleQuestionTypeChange() {
@@ -2230,30 +2581,223 @@
             if (questionType === 'multiple_choice') {
                 multipleChoiceOptions.classList.remove('hidden');
                 trueFalseOptions.classList.add('hidden');
+                
+                // Set required attributes
+                ['optionA', 'optionB', 'optionC', 'optionD', 'correctAnswer'].forEach(id => {
+                    document.getElementById(id).required = true;
+                });
+                document.getElementById('correctAnswerTF').required = false;
+                
             } else if (questionType === 'true_false') {
                 multipleChoiceOptions.classList.add('hidden');
                 trueFalseOptions.classList.remove('hidden');
+                
+                // Remove required attributes
+                ['optionA', 'optionB', 'optionC', 'optionD', 'correctAnswer'].forEach(id => {
+                    document.getElementById(id).required = false;
+                });
+                document.getElementById('correctAnswerTF').required = true;
             }
         }
 
         // FORM HANDLERS - เพิ่มตามความต้องการ
         async function handleAddCategory(e) {
             e.preventDefault();
-            showAlert('ฟีเจอร์นี้ต้องเชื่อมต่อกับ Supabase Database ก่อน', 'info');
+            
+            const name = document.getElementById('categoryName').value.trim();
+            const description = document.getElementById('categoryDescription').value.trim();
+            
+            if (!name) {
+                showAlert('กรุณากรอกชื่อหมวดหมู่', 'error');
+                return;
+            }
+            
+            try {
+                const { data, error } = await supabase
+                    .from('categories')
+                    .insert([{
+                        name,
+                        description,
+                        created_by: currentUser.id
+                    }])
+                    .select();
+                
+                if (error) throw error;
+                
+                showAlert('เพิ่มหมวดหมู่สำเร็จ', 'success');
+                closeModal('addCategoryModal');
+                document.getElementById('addCategoryForm').reset();
+                loadCategories();
+                
+            } catch (error) {
+                console.error('Add category error:', error);
+                showAlert(getErrorMessage(error), 'error');
+            }
         }
 
         async function handleAddExam(e) {
             e.preventDefault();
-            showAlert('ฟีเจอร์นี้ต้องเชื่อมต่อกับ Supabase Database ก่อน', 'info');
+            
+            const title = document.getElementById('examTitle').value.trim();
+            const description = document.getElementById('examDescription').value.trim();
+            const categoryId = document.getElementById('examCategory').value;
+            const timeLimit = parseInt(document.getElementById('examTimeLimit').value);
+            const passScore = parseFloat(document.getElementById('examPassScore').value);
+            
+            if (!title || !categoryId) {
+                showAlert('กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน', 'error');
+                return;
+            }
+            
+            try {
+                const { data, error } = await supabase
+                    .from('exams')
+                    .insert([{
+                        title,
+                        description,
+                        category_id: categoryId,
+                        time_limit: timeLimit,
+                        pass_score: passScore,
+                        created_by: currentUser.id,
+                        is_published: true
+                    }])
+                    .select();
+                
+                if (error) throw error;
+                
+                showAlert('เพิ่มข้อสอบสำเร็จ', 'success');
+                closeModal('addExamModal');
+                document.getElementById('addExamForm').reset();
+                loadExams();
+                
+            } catch (error) {
+                console.error('Add exam error:', error);
+                showAlert(getErrorMessage(error), 'error');
+            }
         }
 
         async function handleAddQuestion(e) {
             e.preventDefault();
-            showAlert('ฟีเจอร์นี้ต้องเชื่อมต่อกับ Supabase Database ก่อน', 'info');
+            
+            const examId = document.getElementById('questionExam').value;
+            const questionText = document.getElementById('questionText').value.trim();
+            const questionType = document.getElementById('questionType').value;
+            const points = parseInt(document.getElementById('questionPoints').value) || 1;
+            const explanation = document.getElementById('questionExplanation').value.trim();
+            
+            if (!examId || !questionText) {
+                showAlert('กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน', 'error');
+                return;
+            }
+            
+            let options = {};
+            let correctAnswer = '';
+            
+            if (questionType === 'multiple_choice') {
+                const optionA = document.getElementById('optionA').value.trim();
+                const optionB = document.getElementById('optionB').value.trim();
+                const optionC = document.getElementById('optionC').value.trim();
+                const optionD = document.getElementById('optionD').value.trim();
+                correctAnswer = document.getElementById('correctAnswer').value;
+                
+                if (!optionA || !optionB || !optionC || !optionD || !correctAnswer) {
+                    showAlert('กรุณากรอกตัวเลือกและคำตอบให้ครบถ้วน', 'error');
+                    return;
+                }
+                
+                options = { A: optionA, B: optionB, C: optionC, D: optionD };
+                
+            } else if (questionType === 'true_false') {
+                correctAnswer = document.getElementById('correctAnswerTF').value;
+                
+                if (!correctAnswer) {
+                    showAlert('กรุณาเลือกคำตอบที่ถูกต้อง', 'error');
+                    return;
+                }
+                
+                options = { true: 'จริง', false: 'เท็จ' };
+            }
+            
+            try {
+                const { data, error } = await supabase
+                    .from('questions')
+                    .insert([{
+                        exam_id: examId,
+                        question_text: questionText,
+                        type: questionType,
+                        options: JSON.stringify(options),
+                        correct_answer: correctAnswer,
+                        points: points,
+                        explanation: explanation,
+                        created_by: currentUser.id
+                    }])
+                    .select();
+                
+                if (error) throw error;
+                
+                showAlert('เพิ่มคำถามสำเร็จ', 'success');
+                closeModal('addQuestionModal');
+                document.getElementById('addQuestionForm').reset();
+                handleQuestionTypeChange(); // Reset form display
+                loadQuestionManagement();
+                
+            } catch (error) {
+                console.error('Add question error:', error);
+                showAlert(getErrorMessage(error), 'error');
+            }
         }
 
         async function updateProfile() {
-            showAlert('ฟีเจอร์นี้ต้องเชื่อมต่อกับ Supabase Database ก่อน', 'info');
+            if (!currentUser) return;
+            
+            const username = document.getElementById('profileUsername').value.trim();
+            const fullName = document.getElementById('profileFullName').value.trim();
+            
+            if (!username) {
+                showAlert('กรุณากรอกชื่อผู้ใช้', 'error');
+                return;
+            }
+            
+            try {
+                const { error } = await supabase
+                    .from('profiles')
+                    .update({
+                        username,
+                        full_name: fullName,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', currentUser.id);
+                
+                if (error) throw error;
+                
+                showAlert('อัปเดตข้อมูลสำเร็จ', 'success');
+                await loadUserProfile();
+                updateUserInfo();
+                
+            } catch (error) {
+                console.error('Update profile error:', error);
+                showAlert(getErrorMessage(error), 'error');
+            }
+        }
+
+        function showLoadingInContainer(container) {
+            container.innerHTML = `
+                <div class="text-center">
+                    <div class="loading-spinner" style="margin: 0 auto 20px;"></div>
+                    <p>กำลังโหลดข้อมูล...</p>
+                </div>
+            `;
+        }
+
+        function showErrorInContainer(container, message) {
+            container.innerHTML = `
+                <div class="card">
+                    <div class="alert alert-error">${message}</div>
+                    <div class="text-center">
+                        <button class="btn btn-primary" onclick="location.reload()">ลองใหม่</button>
+                    </div>
+                </div>
+            `;
         }
 
         // CLEANUP
