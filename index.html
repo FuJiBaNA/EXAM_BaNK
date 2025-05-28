@@ -1621,6 +1621,21 @@
             try {
                 const userData = currentUser.user_metadata || {};
                 
+                // Check if profile already exists
+                const { data: existingProfile, error: checkError } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', currentUser.id)
+                    .single();
+                
+                if (existingProfile) {
+                    console.log('✅ Profile already exists');
+                    currentUser.profile = existingProfile;
+                    return;
+                }
+                
+                console.log('🔄 Creating new profile for user:', currentUser.id);
+                
                 const { data, error } = await supabase
                     .from('profiles')
                     .insert([{
@@ -1635,24 +1650,29 @@
                 
                 if (error) {
                     console.error('❌ Create profile error:', error);
+                    // Create fallback profile object
                     currentUser.profile = {
+                        id: currentUser.id,
                         username: currentUser.email.split('@')[0],
                         full_name: '',
-                        role: 'student',
+                        role: userData.role || 'student',
                         membership_type: 'free'
                     };
                     return;
                 }
                 
-                console.log('✅ Profile created');
+                console.log('✅ Profile created successfully');
                 currentUser.profile = data;
                 
             } catch (error) {
                 console.error('❌ Failed to create profile:', error);
+                // Create fallback profile object
+                const userData = currentUser.user_metadata || {};
                 currentUser.profile = {
+                    id: currentUser.id,
                     username: currentUser.email.split('@')[0],
                     full_name: '',
-                    role: 'student',
+                    role: userData.role || 'student',
                     membership_type: 'free'
                 };
             }
@@ -2176,8 +2196,34 @@
         }
 
         function showAddExamModal() {
-            loadCategoriesForFilter();
-            document.getElementById('addExamModal').classList.add('show');
+            console.log('🔄 Opening add exam modal...');
+            console.log('👤 Current user:', currentUser?.email);
+            console.log('👤 User profile:', currentUser?.profile);
+            console.log('🔑 User role:', currentUser?.profile?.role);
+            
+            if (!currentUser) {
+                showAlert('กรุณาเข้าสู่ระบบก่อน', 'error');
+                return;
+            }
+            
+            if (!currentUser.profile) {
+                showAlert('กรุณารอระบบโหลดข้อมูลผู้ใช้', 'warning');
+                return;
+            }
+            
+            if (currentUser.profile.role !== 'teacher' && currentUser.profile.role !== 'admin') {
+                showAlert('เฉพาะครูและผู้ดูแลระบบเท่านั้นที่สามารถเพิ่มข้อสอบได้', 'error');
+                return;
+            }
+            
+            // Load categories first
+            loadCategoriesForFilter().then(() => {
+                console.log('✅ Categories loaded for exam modal');
+                document.getElementById('addExamModal').classList.add('show');
+            }).catch(error => {
+                console.error('❌ Failed to load categories:', error);
+                showAlert('ไม่สามารถโหลดหมวดหมู่ได้ กรุณาลองใหม่', 'error');
+            });
         }
 
         function showAddQuestionModal() {
@@ -2444,21 +2490,27 @@
         }
 
         async function loadCategoriesForFilter() {
+            console.log('🔄 Loading categories for filter...');
             try {
                 const { data: categories, error } = await supabase
                     .from('categories')
                     .select('id, name')
                     .order('name');
                 
-                if (error) throw error;
+                if (error) {
+                    console.error('❌ Load categories error:', error);
+                    throw error;
+                }
+                
+                console.log('✅ Categories loaded:', categories?.length || 0);
                 
                 const filterSelect = document.getElementById('categoryFilter');
                 const examCategorySelect = document.getElementById('examCategory');
                 const questionExamSelect = document.getElementById('questionExam');
                 
-                const options = categories.map(cat => 
+                const options = categories?.map(cat => 
                     `<option value="${cat.id}">${escapeHtml(cat.name)}</option>`
-                ).join('');
+                ).join('') || '';
                 
                 if (filterSelect) {
                     filterSelect.innerHTML = '<option value="">ทุกหมวดหมู่</option>' + options;
@@ -2466,15 +2518,17 @@
                 
                 if (examCategorySelect) {
                     examCategorySelect.innerHTML = '<option value="">เลือกหมวดหมู่</option>' + options;
+                    console.log('📝 Exam category options loaded:', options ? 'Yes' : 'No');
                 }
                 
                 // Load exams for question modal
-                if (questionExamSelect) {
+                if (questionExamSelect && currentUser?.profile?.role === 'teacher') {
                     await loadExamsForQuestions();
                 }
                 
             } catch (error) {
-                console.error('Load categories for filter error:', error);
+                console.error('❌ Load categories for filter error:', error);
+                showAlert('เกิดข้อผิดพลาดในการโหลดหมวดหมู่: ' + error.message, 'error');
             }
         }
 
@@ -2637,6 +2691,25 @@
 
         async function handleAddExam(e) {
             e.preventDefault();
+            console.log('🔄 Attempting to add exam...');
+            
+            // Check user authentication and role
+            if (!currentUser) {
+                showAlert('กรุณาเข้าสู่ระบบก่อน', 'error');
+                return;
+            }
+            
+            if (!currentUser.profile) {
+                showAlert('กรุณารอระบบโหลดข้อมูลผู้ใช้', 'warning');
+                return;
+            }
+            
+            if (currentUser.profile.role !== 'teacher' && currentUser.profile.role !== 'admin') {
+                showAlert('เฉพาะครูและผู้ดูแลระบบเท่านั้นที่สามารถเพิ่มข้อสอบได้', 'error');
+                return;
+            }
+            
+            console.log('✅ User validation passed. Role:', currentUser.profile.role);
             
             const title = document.getElementById('examTitle').value.trim();
             const description = document.getElementById('examDescription').value.trim();
@@ -2644,26 +2717,47 @@
             const timeLimit = parseInt(document.getElementById('examTimeLimit').value);
             const passScore = parseFloat(document.getElementById('examPassScore').value);
             
-            if (!title || !categoryId) {
-                showAlert('กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน', 'error');
+            console.log('📋 Form data:', { title, description, categoryId, timeLimit, passScore });
+            
+            if (!title) {
+                showAlert('กรุณากรอกชื่อข้อสอบ', 'error');
                 return;
             }
             
+            if (!categoryId) {
+                showAlert('กรุณาเลือกหมวดหมู่ (หากไม่มีหมวดหมู่ให้เลือก กรุณาสร้างหมวดหมู่ก่อน)', 'error');
+                return;
+            }
+            
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            
             try {
+                setButtonLoading(submitBtn, true);
+                
+                const examData = {
+                    title,
+                    description,
+                    category_id: parseInt(categoryId),
+                    time_limit: timeLimit || null,
+                    pass_score: passScore || 60,
+                    created_by: currentUser.id,
+                    is_published: true,
+                    is_active: true
+                };
+                
+                console.log('📤 Inserting exam data:', examData);
+                
                 const { data, error } = await supabase
                     .from('exams')
-                    .insert([{
-                        title,
-                        description,
-                        category_id: categoryId,
-                        time_limit: timeLimit,
-                        pass_score: passScore,
-                        created_by: currentUser.id,
-                        is_published: true
-                    }])
+                    .insert([examData])
                     .select();
                 
-                if (error) throw error;
+                if (error) {
+                    console.error('❌ Database error:', error);
+                    throw error;
+                }
+                
+                console.log('✅ Exam created successfully:', data);
                 
                 showAlert('เพิ่มข้อสอบสำเร็จ', 'success');
                 closeModal('addExamModal');
@@ -2671,8 +2765,20 @@
                 loadExams();
                 
             } catch (error) {
-                console.error('Add exam error:', error);
-                showAlert(getErrorMessage(error), 'error');
+                console.error('❌ Add exam failed:', error);
+                let errorMessage = 'เกิดข้อผิดพลาดในการเพิ่มข้อสอบ';
+                
+                if (error.message.includes('permission')) {
+                    errorMessage = 'ไม่มีสิทธิ์ในการเพิ่มข้อสอบ กรุณาตรวจสอบบทบาทผู้ใช้';
+                } else if (error.message.includes('foreign key')) {
+                    errorMessage = 'หมวดหมู่ที่เลือกไม่ถูกต้อง กรุณาลองใหม่';
+                } else if (error.message.includes('duplicate')) {
+                    errorMessage = 'ชื่อข้อสอบนี้มีอยู่แล้ว กรุณาใช้ชื่ออื่น';
+                }
+                
+                showAlert(errorMessage + ': ' + error.message, 'error');
+            } finally {
+                setButtonLoading(submitBtn, false);
             }
         }
 
@@ -2800,6 +2906,62 @@
             `;
         }
 
+        // DEBUG FUNCTIONS
+        async function checkSystemStatus() {
+            console.log('🔍 System Status Check:');
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            
+            // 1. Check Supabase connection
+            console.log('🔗 Supabase URL:', SUPABASE_URL);
+            console.log('🔑 API Key configured:', SUPABASE_ANON_KEY ? 'Yes' : 'No');
+            
+            // 2. Check authentication
+            console.log('👤 Current User:', currentUser?.email || 'Not logged in');
+            console.log('👤 User ID:', currentUser?.id || 'N/A');
+            
+            // 3. Check profile
+            if (currentUser) {
+                console.log('📄 Profile loaded:', currentUser.profile ? 'Yes' : 'No');
+                if (currentUser.profile) {
+                    console.log('📄 Username:', currentUser.profile.username);
+                    console.log('📄 Role:', currentUser.profile.role);
+                    console.log('📄 Membership:', currentUser.profile.membership_type);
+                }
+            }
+            
+            // 4. Test database connection
+            try {
+                const { data, error } = await supabase.from('categories').select('count');
+                if (error) {
+                    console.error('❌ Database connection failed:', error);
+                } else {
+                    console.log('✅ Database connection: OK');
+                }
+            } catch (error) {
+                console.error('❌ Database test failed:', error);
+            }
+            
+            // 5. Check categories
+            try {
+                const { data: categories, error } = await supabase.from('categories').select('id, name');
+                if (error) {
+                    console.error('❌ Categories fetch failed:', error);
+                } else {
+                    console.log('📚 Categories available:', categories?.length || 0);
+                    if (categories?.length === 0) {
+                        console.warn('⚠️ No categories found. Create categories first!');
+                    }
+                }
+            } catch (error) {
+                console.error('❌ Categories check failed:', error);
+            }
+            
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        }
+
+        // Add system check to global scope for debugging
+        window.checkSystemStatus = checkSystemStatus;
+
         // CLEANUP
         window.addEventListener('beforeunload', function() {
             if (authStateListener) {
@@ -2812,6 +2974,10 @@
 
         console.log('🎉 คลังข้อสอบออนไลน์ loaded successfully!');
         console.log('⚠️ Remember to configure Supabase URL and API Key!');
+        console.log('🔧 Debug: Run checkSystemStatus() in console to check system status');
+    </script>
+</body>
+</html>
     </script>
 </body>
 </html>
