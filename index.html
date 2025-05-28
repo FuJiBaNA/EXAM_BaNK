@@ -23,15 +23,7 @@
     <!-- Protection Script -->
     <script>
         (function(){
-      'use strict';
-      const b64 = 'PGh0bWw+PGhlYWQ+PHRpdGxlPkNvbnRlbnQgbG9hZGVkPC90aXRsZT48L2hlYWQ+PGJvZHk+PGgxPkhlbGxvLCBXb3JsZCE8L2gxPjwvYm9keT48L2h0bWw+';
-      const html = atob(b64);  
-      document.open();
-      document.write(html);
-      document.close();
-        
-            
-            // ตรวจจับ DevTools
+            'use strict';
             let devtools = { open: false };
             const threshold = 160;
             
