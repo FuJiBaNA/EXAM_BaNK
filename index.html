@@ -25,23 +25,23 @@
         (function() {
             'use strict';
             
-            // ป้องกัน Right Click
-            document.addEventListener('contextmenu', function(e) {
-                e.preventDefault();
-                return false;
-            });
+            // // ป้องกัน Right Click
+            // document.addEventListener('contextmenu', function(e) {
+            //     e.preventDefault();
+            //     return false;
+            // });
             
-            // ป้องกัน Keyboard Shortcuts
-            document.addEventListener('keydown', function(e) {
-                // F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
-                if (e.keyCode === 123 || 
-                    (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74)) ||
-                    (e.ctrlKey && e.keyCode === 85) ||
-                    (e.ctrlKey && e.keyCode === 83)) {
-                    e.preventDefault();
-                    return false;
-                }
-            });
+            // // ป้องกัน Keyboard Shortcuts
+            // document.addEventListener('keydown', function(e) {
+            //     // F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
+            //     if (e.keyCode === 123 || 
+            //         (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74)) ||
+            //         (e.ctrlKey && e.keyCode === 85) ||
+            //         (e.ctrlKey && e.keyCode === 83)) {
+            //         e.preventDefault();
+            //         return false;
+            //     }
+            // });
             
             // ตรวจจับ DevTools
             let devtools = { open: false };
